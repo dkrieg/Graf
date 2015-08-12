@@ -7,7 +7,6 @@ import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph
 
 import scala.language.postfixOps
 import scalaz.Scalaz._
-import scalaz.concurrent.Task
 
 object GrafApp extends App {
 
@@ -47,24 +46,24 @@ object GrafApp extends App {
   val graph = TinkerGraph.open
 
   // apply a Graph instance to the script to create an runnable Task
-  val task = script(graph)
+  val task = script.bind(graph)
   println(graph)
-  script.exec(graph) // alternative
-  script.exec(graph) // The script is referentially transparent - it executes once and memoizes the results
-  script.exec(graph)
-  script.exec(graph)
+  script.bind(graph)
+  script.bind(graph) // The script is referentially transparent - bind to the same graph you get the same task.
+  script.bind(graph)
+  script.bind(graph)
   println(graph)
   // NOTE: we are ready to change the world but it remains unchanged!
 
-  // The task is referentially transparent - it executes once and memoizes the results
   task.run
+  println(graph)
   task.run
+  task.run  // The task is referentially transparent - it executes once and memoizes the results
   task.run
-  task.run
-  val result = task.run
+  println(graph)
 
   // print resulting list of strings to console
-  result.foreach(println)
+  task.run.foreach(println)
 
   // output the graph
   graph.io(graphson()).writer.create.writeGraph(Console.out, graph)

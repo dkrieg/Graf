@@ -13,12 +13,6 @@ import scalaz.concurrent.Task
 object GrafApp2 extends App {
 
   // declare some values
-  object task extends Poly1 {
-    implicit def caseTaskU = at[Task[Unit]](_.run)
-
-    implicit def caseTaskL = at[Task[List[String]]](_.run)
-  }
-
   val createVertices = Graf {
     for {
       // access the Graph
@@ -69,7 +63,6 @@ object GrafApp2 extends App {
   }
 
   // compose several Graf instances together to create a list executable Tasks
-  type GHList = Task[Unit] :: Task[Unit] :: Task[List[String]] :: HNil
   val script = for {
     a ← createVertices
     b ← createEdges
@@ -81,15 +74,24 @@ object GrafApp2 extends App {
   val graph = TinkerGraph.open
 
   // apply a Graph instance to the script to create a list of runnable Tasks
-  val taskList: GHList = script(graph)
+  val task = script.bind(graph)
+  println(graph)
+  script.bind(graph)
+  script.bind(graph) // The script is referentially transparent - bind to the same graph you get the same task.
+  script.bind(graph)
+  script.bind(graph)
+  println(graph)
   // NOTE: we are ready to change the world but it remains unchanged!
 
   // The task is referentially transparent - it executes once and memoizes the results
-  taskList.map(task)
-  taskList.map(task)
-  taskList.map(task)
-  taskList.map(task)
-  taskList.map(task).last.foreach(println)
+  task.run
+  println(graph)
+  task.run
+  task.run  // The task is referentially transparent - it executes once and memoizes the results
+  task.run
+  println(graph)
+
+  task.run.last.foreach(println)
 
   // output the graph
   graph.io(graphson()).writer.create.writeGraph(Console.out, graph)

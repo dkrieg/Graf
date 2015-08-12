@@ -7,6 +7,7 @@ import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph
 import shapeless.{::, HNil, Poly1}
 
 import scala.language.postfixOps
+import scalaz.{Coyoneda, Free}
 import scalaz.Scalaz._
 import scalaz.concurrent.Task
 import scalaz.stream.Process
@@ -15,12 +16,6 @@ import scalaz.stream.Process.emit
 object GrafApp3 extends App {
 
   // declare some values
-  object task extends Poly1 {
-    implicit def caseTaskU = at[Process[Task, Task[Unit]]](_.eval.runLog.run)
-
-    implicit def caseTaskL = at[Process[Task, Task[List[String]]]](_.eval.runLog.run.flatten)
-  }
-
   val createVertices = Graf {
     for {
       // access the Graph
@@ -71,27 +66,37 @@ object GrafApp3 extends App {
   }
 
   // compose several Graf instances together to create a list Processes
-  type GHList = Process[Task, Task[Unit]] :: Process[Task, Task[Unit]] :: Process[Task, Task[List[String]]] :: HNil
-  val script: Graf[GHList] = for {
-    a ← createVertices
-    b ← createEdges
-    c ← getSortedEdges
-  } yield emit(a).toSource :: emit(b).toSource :: emit(c).toSource :: HNil
+  val script: Graf[Process[Task, Unit :: Unit :: List[String] :: HNil]] = Graf {
+      for {
+        a ← createVertices
+        b ← createEdges
+        c ← getSortedEdges
+      } yield Process(a :: b :: c :: HNil).toSource
+  }
   // NOTE: nothing has happened - the world is unchanged!
 
   // open a Graph
   val graph = TinkerGraph.open
 
   // apply a Graph instance to the script to create a list of runnable Processes
-  val taskList: GHList = script(graph)
+  val task: OneTimeTask[Process[Task, Unit :: Unit :: List[String] :: HNil]] = script.bind(graph)
+  println(graph)
+  script.bind(graph)
+  script.bind(graph) // The script is referentially transparent - bind to the same graph you get the same task.
+  script.bind(graph)
+  script.bind(graph)
+  println(graph)
   // NOTE: we are ready to change the world but it remains unchanged!
 
   // The task is referentially transparent - it executes once and memoizes the results
-  taskList.map(task)
-  taskList.map(task)
-  taskList.map(task)
-  taskList.map(task)
-  taskList.map(task).last.foreach(println)
+  task.run
+  println(graph)
+  task.run
+  task.run  // The task is referentially transparent - it executes once and memoizes the results
+  task.run
+  println(graph)
+
+  task.run.runLog.run.head.last.foreach(println)
 
   // output the graph
   graph.io(graphson()).writer.create.writeGraph(Console.out, graph)

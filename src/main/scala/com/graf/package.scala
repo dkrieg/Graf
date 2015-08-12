@@ -2,30 +2,20 @@ package com
 
 import gremlin.scala._
 
-import scalaz.Free._
 import scalaz.Memo._
+import scalaz.Free._
 import scalaz._
-import scalaz.concurrent.{ Future, Task }
+import scalaz.concurrent.{Future, Task}
 
 package object graf {
-  type Graf[A] = Reader[ScalaGraph, A]
-  type GrafM[A] = Free[GrafOp, A]
+  type Graf[A] = FreeC[GrafOp, A]
+  type GrafR[A] = ScalaGraph ⇒ OneTimeTask[A]
 
   sealed trait GrafOp[+A]
 
-  case class GrafExec[+A](run: ScalaGraph ⇒ A) extends (ScalaGraph => A) with GrafOp[A] {
-    val memo = weakHashMapMemo {
-      g: ScalaGraph => run(g)
-    }
-    override def apply(g: ScalaGraph): A = {
-      println(g.hashCode())
-      memo(g)
-    }
-  }
+  case object GetGraph extends GrafOp[ScalaGraph]
 
-  def G: GrafM[ScalaGraph] = liftF(GrafExec(identity))
-
-  class OneTimeTask[A](override val get: Future[Throwable \/ A]) extends Task[A](get) {
+  case class OneTimeTask[A](override val get: Future[Throwable \/ A]) extends Task[A](get) {
     val memo = immutableHashMapMemo {
       get: Future[Throwable \/ A] ⇒
         get.run match {
@@ -34,27 +24,33 @@ package object graf {
         }
     }
 
+    def flatMap[B](f: (A) => OneTimeTask[B]): OneTimeTask[B] =
+      OneTimeTask(get flatMap {
+        case -\/(e) => Future.now(-\/(e))
+        case \/-(a) => Task.Try(f(a)) match {
+          case e @ -\/(_) => Future.now(e)
+          case \/-(task) => task.get
+        }
+      })
+
+    override def map[B](f: (A) => B): OneTimeTask[B] = OneTimeTask(get map { _ flatMap {a => Task.Try(f(a))} })
+
     override def run: A = memo(get)
   }
 
-  implicit object GrafOpsFunctor extends Functor[GrafOp] {
-    override def map[A, B](fa: GrafOp[A])(f: (A) ⇒ B): GrafOp[B] = fa match {
-      case GrafExec(run) ⇒ GrafExec(run andThen f)
+  def G = liftFC(GetGraph)
+
+  implicit val toState: GrafOp ~> GrafR = new (GrafOp ~> GrafR) {
+    override def apply[A](fa: GrafOp[A]): GrafR[A] = fa match {
+      case GetGraph ⇒ g ⇒ OneTimeTask(Future.delay(\/-(g)))
     }
   }
 
-  implicit object OneTimeTaskMonad extends Monad[OneTimeTask] {
-    override def point[A](a: ⇒ A): OneTimeTask[A] = new OneTimeTask[A](Future.delay(\/-(a)))
+  implicit val GrafRMonad = new Monad[GrafR] {
 
-    override def bind[A, B](fa: OneTimeTask[A])(f: (A) ⇒ OneTimeTask[B]): OneTimeTask[B] = f(fa.run)
-  }
+    override def bind[A, B](fa: GrafR[A])(f: (A) ⇒ GrafR[B]): GrafR[B] = g ⇒ fa(g) flatMap (a ⇒ f(a)(g))
 
-  implicit class GrafOps[A](g: Graf[A]) {
-    def exec(sg: ScalaGraph) = g(sg)
-  }
-
-  implicit class ScalaGraphOps(graph: ScalaGraph) {
-    def ++(properties: (String, Any)*): ScalaVertex = graph.addVertex(properties.toMap)
+    override def point[A](a: ⇒ A): GrafR[A] = g ⇒ OneTimeTask(Future.delay(\/-(a)))
   }
 
   implicit val VertexShow = new Show[Vertex] {
@@ -72,5 +68,14 @@ package object graf {
       else s"e[${f.id}:${f.label}]"
       VertexShow.shows(f.outVertex) + s" -- $es -> " + VertexShow.shows(f.inVertex)
     }
+  }
+
+  implicit class GrafOps[A](g: Graf[A]) {
+    def bind(graph: Graph) =
+      runFC[GrafOp, GrafR, A](g)(toState).apply(GS(graph))
+  }
+
+  implicit class ScalaGraphOps(graph: ScalaGraph) {
+    def ++(properties: (String, Any)*): ScalaVertex = graph.addVertex(properties.toMap)
   }
 }
