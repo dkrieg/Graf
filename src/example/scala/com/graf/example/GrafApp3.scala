@@ -4,10 +4,10 @@ import com.graf._
 import gremlin.scala._
 import org.apache.tinkerpop.gremlin.structure.io.IoCore.graphson
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph
-import shapeless.{::, HNil, Poly1}
+import shapeless.{ ::, HNil, Poly1 }
 
 import scala.language.postfixOps
-import scalaz.{Coyoneda, Free}
+import scalaz.{ Coyoneda, Free }
 import scalaz.Scalaz._
 import scalaz.concurrent.Task
 import scalaz.stream.Process
@@ -67,11 +67,11 @@ object GrafApp3 extends App {
 
   // compose several Graf instances together to create a list Processes
   val script: Graf[Process[Task, Unit :: Unit :: List[String] :: HNil]] = Graf {
-      for {
-        a ← createVertices
-        b ← createEdges
-        c ← getSortedEdges
-      } yield Process(a :: b :: c :: HNil).toSource
+    for {
+      a ← createVertices
+      b ← createEdges
+      c ← getSortedEdges
+    } yield Process(a :: b :: c :: HNil).toSource
   }
   // NOTE: nothing has happened - the world is unchanged!
 
@@ -92,7 +92,7 @@ object GrafApp3 extends App {
   task.run
   println(graph)
   task.run
-  task.run  // The task is referentially transparent - it executes once and memoizes the results
+  task.run // The task is referentially transparent - it executes once and memoizes the results
   task.run
   println(graph)
 

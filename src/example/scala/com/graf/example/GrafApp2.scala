@@ -4,7 +4,7 @@ import com.graf._
 import gremlin.scala._
 import org.apache.tinkerpop.gremlin.structure.io.IoCore.graphson
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph
-import shapeless.{::, HNil, Poly1}
+import shapeless.{ ::, HNil, Poly1 }
 
 import scala.language.postfixOps
 import scalaz.Scalaz._
@@ -87,7 +87,7 @@ object GrafApp2 extends App {
   task.run
   println(graph)
   task.run
-  task.run  // The task is referentially transparent - it executes once and memoizes the results
+  task.run // The task is referentially transparent - it executes once and memoizes the results
   task.run
   println(graph)
 

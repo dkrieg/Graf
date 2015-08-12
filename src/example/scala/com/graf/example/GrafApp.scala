@@ -58,7 +58,7 @@ object GrafApp extends App {
   task.run
   println(graph)
   task.run
-  task.run  // The task is referentially transparent - it executes once and memoizes the results
+  task.run // The task is referentially transparent - it executes once and memoizes the results
   task.run
   println(graph)
 
