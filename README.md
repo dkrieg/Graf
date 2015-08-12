@@ -2,7 +2,7 @@
 While a [**Graf**](https://en.wikipedia.org/wiki/Graf) is the historical title of German nobility, 
 **Graf**[T] is an attempt to `lift` TinkerPop3 into the noble ranks of `higher-kinded types` in Scala.
 
-**Graf**[T] uses Scalaz to create an [FP](https://en.wikipedia.org/wiki/Functional_programming) solution to 
+**Graf**[T] uses [Scalaz] (https://github.com/scalaz/scalaz) to create an [FP](https://en.wikipedia.org/wiki/Functional_programming) solution to 
 interfacing with TinkerPop3 in Scala. [TinkerPop3] (http://tinkerpop.incubator.apache.org/) provides graph computing 
 capabilities for both graph databases (OLTP) and graph analytic systems (OLAP).  [Gremlin Scala](https://github.com/mpollmeier/gremlin-scala) wraps the TinkerPop3 API and introduces more type-safe 
 functions. 
