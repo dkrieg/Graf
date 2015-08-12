@@ -4,13 +4,11 @@ While a [**Graf**](https://en.wikipedia.org/wiki/Graf) is the historical title o
 
 **Graf**[T] uses Scalaz to create an [FP](https://en.wikipedia.org/wiki/Functional_programming) solution to 
 interfacing with TinkerPop3 in Scala. [TinkerPop3] (http://tinkerpop.incubator.apache.org/) provides graph computing 
-capabilities for both graph databases (OLTP) and graph analytic systems (OLAP).  
-[Gremlin Scala](https://github.com/mpollmeier/gremlin-scala) wraps the TinkerPop3 API and introduces more type-safe 
+capabilities for both graph databases (OLTP) and graph analytic systems (OLAP).  [Gremlin Scala](https://github.com/mpollmeier/gremlin-scala) wraps the TinkerPop3 API and introduces more type-safe 
 functions. 
-                                                                                 
+
 Technically, **Graf**[T] is an instance of Free Monad, uses a Natural Transformation for Reader semantics and Task 
-memoization to create a referentially transparent API that given the same input produces the same output despite global 
-state change that may have occurred in the graph.  This of course has benefits and drawback but referentially 
+memoization to create a referentially transparent API that given the same input produces the same output despite global state change that may have occurred in the graph.  This of course has benefits and drawback but referentially 
 transparent functions are far easier to reason about. 
 
 ### Example Code
