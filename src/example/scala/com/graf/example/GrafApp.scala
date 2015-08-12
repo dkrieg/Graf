@@ -49,7 +49,7 @@ object GrafApp extends App {
   val task = script.bind(graph)
   println(graph)
   script.bind(graph)
-  script.bind(graph) // The script is referentially transparent - bind to the same graph you get the same task.
+  script.bind(graph) // bind the graph to the script gives you a new One Time Task - but does not alter the graph
   script.bind(graph)
   script.bind(graph)
   println(graph)
