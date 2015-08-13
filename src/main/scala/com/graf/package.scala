@@ -16,7 +16,7 @@ package object graf {
   case object GetGraph extends GrafOp[ScalaGraph]
 
   case class OneTimeTask[A](override val get: Future[Throwable \/ A]) extends Task[A](get) {
-    val memo = immutableHashMapMemo {
+    private val memo = immutableHashMapMemo {
       get: Future[Throwable \/ A] ⇒
         get.run match {
           case -\/(e) ⇒ throw e
@@ -71,8 +71,7 @@ package object graf {
   }
 
   implicit class GrafOps[A](g: Graf[A]) {
-    def bind(graph: Graph) =
-      runFC[GrafOp, GrafR, A](g)(toState).apply(GS(graph))
+    def bind(graph: Graph) = runFC(g)(toState).apply(GS(graph))
   }
 
   implicit class ScalaGraphOps(graph: ScalaGraph) {
