@@ -5,7 +5,7 @@ import gremlin.scala._
 import scalaz.Memo._
 import scalaz.Free._
 import scalaz._
-import scalaz.concurrent.{Future, Task}
+import scalaz.concurrent.{ Future, Task }
 
 package object graf {
   type Graf[A] = FreeC[GrafOp, A]
@@ -24,16 +24,16 @@ package object graf {
         }
     }
 
-    def flatMap[B](f: (A) => OneTimeTask[B]): OneTimeTask[B] =
+    def flatMap[B](f: (A) ⇒ OneTimeTask[B]): OneTimeTask[B] =
       OneTimeTask(get flatMap {
-        case -\/(e) => Future.now(-\/(e))
-        case \/-(a) => Task.Try(f(a)) match {
-          case e @ -\/(_) => Future.now(e)
-          case \/-(task) => task.get
+        case -\/(e) ⇒ Future.now(-\/(e))
+        case \/-(a) ⇒ Task.Try(f(a)) match {
+          case e @ -\/(_) ⇒ Future.now(e)
+          case \/-(task) ⇒ task.get
         }
       })
 
-    override def map[B](f: (A) => B): OneTimeTask[B] = OneTimeTask(get map { _ flatMap {a => Task.Try(f(a))} })
+    override def map[B](f: (A) ⇒ B): OneTimeTask[B] = OneTimeTask(get map { _ flatMap { a ⇒ Task.Try(f(a)) } })
 
     override def run: A = memo(get)
   }
