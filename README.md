@@ -33,12 +33,12 @@ object GrafApp extends App {
       peter = g ++ (person, name("peter"), age(35))
 
       // link vertices to edges
-      _ = marko -- knows -> vadas weight 0.5d
-      _ = marko -- knows -> josh weight 1.0d
-      _ = marko -- created -> lop weight 0.4d
-      _ = josh -- created -> ripple weight 1.0d
-      _ = josh -- created -> lop weight 0.4d
-      _ = peter -- created -> lop weight 0.2d
+      _ = marko --- knows --> vadas weight 0.5d
+      _ = marko --- knows --> josh weight 1.0d
+      _ = marko --- created --> lop weight 0.4d
+      _ = josh --- created --> ripple weight 1.0d
+      _ = josh --- created --> lop weight 0.4d
+      _ = peter --- created --> lop weight 0.2d
 
       // map over all edges to create a sorted list
       eq = g.E.toList() sortWith { (a, b) ⇒
@@ -66,7 +66,7 @@ object GrafApp extends App {
   task.run
   println(graph)
   task.run
-  task.run  // The task is referentially transparent - it executes once and memoizes the results
+  task.run // The task is referentially transparent - it executes once and memoizes the results
   task.run
   println(graph)
 
