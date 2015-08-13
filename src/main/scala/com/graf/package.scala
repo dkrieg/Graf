@@ -9,11 +9,11 @@ import scalaz.concurrent.{ Future, Task }
 
 package object graf {
   type Graf[A] = FreeC[GrafOp, A]
-  type GrafR[A] = ScalaGraph ⇒ OneTimeTask[A]
+  type GrafR[A] = ScalaGraph[Graph] ⇒ OneTimeTask[A]
 
   sealed trait GrafOp[+A]
 
-  case object GetGraph extends GrafOp[ScalaGraph]
+  case object GetGraph extends GrafOp[ScalaGraph[Graph]]
 
   case class OneTimeTask[A](override val get: Future[Throwable \/ A]) extends Task[A](get) {
     private val memo = immutableHashMapMemo {
@@ -66,15 +66,11 @@ package object graf {
       val name = f.property("name")
       val es = if (name.isPresent) s"e[${f.id}:${f.label}:${name.value}]"
       else s"e[${f.id}:${f.label}]"
-      VertexShow.shows(f.outVertex) + s" -- $es -> " + VertexShow.shows(f.inVertex)
+      VertexShow.shows(f.outVertex) + s" --- $es --> " + VertexShow.shows(f.inVertex)
     }
   }
 
   implicit class GrafOps[A](g: Graf[A]) {
-    def bind(graph: Graph) = runFC(g)(toState).apply(GS(graph))
-  }
-
-  implicit class ScalaGraphOps(graph: ScalaGraph) {
-    def ++(properties: (String, Any)*): ScalaVertex = graph.addVertex(properties.toMap)
+    def bind(graph: Graph) = runFC(g)(toState).apply(graph.asScala)
   }
 }

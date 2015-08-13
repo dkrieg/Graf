@@ -40,12 +40,12 @@ object GrafApp2 extends App {
       }
 
       // create edges
-      _ = (v("marko") -- knows -> v("vadas")).weight(0.5d)
-      _ = (v("marko") -- knows -> v("josh")).weight(1.0d)
-      _ = (v("marko") -- created -> v("lop")).weight(0.4d)
-      _ = (v("josh") -- created -> v("ripple")).weight(1.0d)
-      _ = (v("josh") -- created -> v("lop")).weight(0.4d)
-      _ = (v("peter") -- created -> v("lop")).weight(0.2d)
+      _ = (v("marko") --- knows --> v("vadas")).weight(0.5d)
+      _ = (v("marko") --- knows --> v("josh")).weight(1.0d)
+      _ = (v("marko") --- created --> v("lop")).weight(0.4d)
+      _ = (v("josh") --- created --> v("ripple")).weight(1.0d)
+      _ = (v("josh") --- created --> v("lop")).weight(0.4d)
+      _ = (v("peter") --- created --> v("lop")).weight(0.2d)
     } yield ()
   }
 
