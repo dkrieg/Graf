@@ -46,11 +46,11 @@ object GrafApp extends App {
   val graph = TinkerGraph.open
 
   // apply a Graph instance to the script to create an runnable Task
-  val task = script.bind(graph)
+  val task = script(graph)
   println(graph)
-  script.bind(graph)
+  script(graph)
+  script.bind(graph) // alternate syntax
   script.bind(graph) // bind the graph to the script gives you a new One Time Task - but does not alter the graph
-  script.bind(graph)
   script.bind(graph)
   println(graph)
   // NOTE: we are ready to change the world but it remains unchanged!

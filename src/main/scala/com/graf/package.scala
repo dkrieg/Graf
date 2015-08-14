@@ -66,11 +66,14 @@ package object graf {
       val name = f.property("name")
       val es = if (name.isPresent) s"e[${f.id}:${f.label}:${name.value}]"
       else s"e[${f.id}:${f.label}]"
-      VertexShow.shows(f.outVertex) + s" --- $es --> " + VertexShow.shows(f.inVertex)
+      implicitly[Show[Vertex]].shows(f.outVertex) + s" --- $es --> " + implicitly[Show[Vertex]].shows(f.inVertex)
     }
   }
 
-  implicit class GrafOps[A](g: Graf[A]) {
-    def bind(graph: Graph) = runFC(g)(toState).apply(graph.asScala)
+  implicit class GrafFunctions[A](g: Graf[A]) extends GrafR[A] {
+    def bind(graph: Graph) = apply(graph.asScala)
+
+    override def apply(graph: ScalaGraph[Graph]): OneTimeTask[A] =
+      runFC(g)(toState).apply(graph)
   }
 }
