@@ -17,12 +17,12 @@ object GrafApp extends App {
       g ← G
 
       // create some vertices
-      marko = g ++ (person, name("marko"), age(29))
-      vadas = g ++ (person, name("vadas"), age(27))
-      lop = g ++ (software, name("lop"), lang("java"))
-      josh = g ++ (person, name("josh"), age(32))
-      ripple = g ++ (software, name("ripple"), lang("java"))
-      peter = g ++ (person, name("peter"), age(35))
+      marko = g + (person, Map(name("marko"), age(29)))
+      vadas = g + (person, Map(name("vadas"), age(27)))
+      lop = g + (software, Map(name("lop"), lang("java")))
+      josh = g + (person, Map(name("josh"), age(32)))
+      ripple = g + (software, Map(name("ripple"), lang("java")))
+      peter = g + (person, Map(name("peter"), age(35)))
 
       // link vertices to edges
       _ = marko --- knows --> vadas weight 0.5d

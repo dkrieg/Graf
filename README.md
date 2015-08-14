@@ -86,3 +86,10 @@ object GrafApp extends App {
 * [TinkerPop3] (http://tinkerpop.incubator.apache.org/) provides graph computing capabilities for both graph databases (OLTP) and graph analytic systems (OLAP)
 * [Scalaz] (https://github.com/scalaz/scalaz) is a Scala library for functional programming.
 * [Gremlin Scala] (https://github.com/mpollmeier/gremlin-scala) "Scala wrapper for Apache TinkerPop 3 Graph DSL".
+
+The Java API ```public Vertex addVertex(final Object... keyValues);``` has a correspondence to 
+
+```
+public default GraphTraversal<S, E> has(final String propertyKey, final P<?> predicate)
+```
+

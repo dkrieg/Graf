@@ -19,12 +19,12 @@ object GrafApp2 extends App {
       g ← G
 
       // create some vertices
-      _ = g ++ (person, name("marko"), age(29))
-      _ = g ++ (person, name("vadas"), age(27))
-      _ = g ++ (software, name("lop"), lang("java"))
-      _ = g ++ (person, name("josh"), age(32))
-      _ = g ++ (software, name("ripple"), lang("java"))
-      _ = g ++ (person, name("peter"), age(35))
+      _ = g + (person, Map(name("marko"), age(29)))
+      _ = g + (person, Map(name("vadas"), age(27)))
+      _ = g + (software, Map(name("lop"), lang("java")))
+      _ = g + (person, Map(name("josh"), age(32)))
+      _ = g + (software, Map(name("ripple"), lang("java")))
+      _ = g + (person, Map(name("peter"), age(35)))
     } yield ()
   }
 

@@ -12,26 +12,15 @@ object GrafApp4 extends App {
 
   // create a script to modify and traverse a graph
   val script = Graf {
-    val person = "person"
-    val software = "software"
-    val blueprints = "name" -> "blueprints"
-    val gremlin = "name" -> "gremlin"
-    val gremlinScala = "name" -> "gremlin-scala"
-    val mpollmeier = "name" -> "mpollmeier"
-    val _2010 = "created" -> 2010
-    val _2009 = "created" -> 2009
-    val dependsOn = "dependsOn"
-    val createdBy = "createdBy"
-
     for {
       // access the Graph
       g ← G
 
       // create some vertices
-      _ = g ++ (software, blueprints, _2010)
-      _ = g.V.has(blueprints).head <-- dependsOn --- (g ++ (software, gremlin, _2009))
-      _ = g.V.has(gremlin).head <-- dependsOn --- (g ++ (software, gremlinScala))
-      _ = g.V.has(gremlinScala).head <-- createdBy --- (g ++ (person, mpollmeier))
+      _ = g + ("software", Map(name("blueprints"), created(2010)))
+      _ = g.V.has(name("blueprints")).head <-- "dependsOn" --- (g + ("software", Map(name("gremlin"), created(2009))))
+      _ = g.V.has(name("gremlin")).head <-- "dependsOn" --- (g + ("software", Map(name("gremlinScala"))))
+      _ = g.V.has(name("gremlinScala")).head <-- "createdBy" --- (g + ("person", Map(name("mpollmeier"))))
 
       // map over all edges to create a sorted list
       eq = g.E.toList() sortWith { (a, b) ⇒
