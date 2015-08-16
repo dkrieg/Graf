@@ -1,18 +1,15 @@
 package com.graf
 
-import gremlin.scala.ScalaEdge
+import gremlin.scala.schema._
 
 package object example {
-  implicit class EdgeOps(e: ScalaEdge) {
-    def weight(w: Double) = e.setProperty("weight", w)
-  }
-
-  def age(a: Int) = "age" -> a
-  def lang(n: String) = "lang" -> n
-  def name(n: String) = "name" -> n
-  val person = "person"
-  val software = "software"
-  val knows = "knows"
-  val created = "created"
-  def created(y: Int) = "created" -> y
+  val Person = Label("person")
+  val Software = Label("software")
+  val Knows = Label("knows")
+  val Created = Label("created")
+  object Age extends Key[Int]("age")
+  object Lang extends Key[String]("lang")
+  object Name extends Key[String]("name")
+  object YearCreated extends Key[Int]("yearCreated")
+  object Weight extends Key[Double]("weight")
 }

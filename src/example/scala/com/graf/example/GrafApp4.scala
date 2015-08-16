@@ -17,10 +17,10 @@ object GrafApp4 extends App {
       g ← G
 
       // create some vertices
-      _ = g + ("software", Map(name("blueprints"), created(2010)))
-      _ = g.V.has(name("blueprints")).head <-- "dependsOn" --- (g + ("software", Map(name("gremlin"), created(2009))))
-      _ = g.V.has(name("gremlin")).head <-- "dependsOn" --- (g + ("software", Map(name("gremlinScala"))))
-      _ = g.V.has(name("gremlinScala")).head <-- "createdBy" --- (g + ("person", Map(name("mpollmeier"))))
+      _ = g + Map(Name("blueprints"), YearCreated(2010), Software)
+      _ = g.V.has(Name("blueprints")).head <-- "dependsOn" --- (g + Map(Name("gremlin"), Software, YearCreated(2009)))
+      _ = g.V.has(Name("gremlin")).head <-- "dependsOn" --- (g + Map(Name("gremlinScala"), Software))
+      _ = g.V.has(Name("gremlinScala")).head <-- "createdBy" --- (g + Map(Person, Name("mpollmeier")))
 
       // map over all edges to create a sorted list
       eq = g.E.toList() sortWith { (a, b) ⇒

@@ -4,11 +4,10 @@ import com.graf._
 import gremlin.scala._
 import org.apache.tinkerpop.gremlin.structure.io.IoCore.graphson
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph
-import shapeless.{ ::, HNil, Poly1 }
+import shapeless.HNil
 
 import scala.language.postfixOps
 import scalaz.Scalaz._
-import scalaz.concurrent.Task
 
 object GrafApp2 extends App {
 
@@ -19,12 +18,12 @@ object GrafApp2 extends App {
       g ← G
 
       // create some vertices
-      _ = g + (person, Map(name("marko"), age(29)))
-      _ = g + (person, Map(name("vadas"), age(27)))
-      _ = g + (software, Map(name("lop"), lang("java")))
-      _ = g + (person, Map(name("josh"), age(32)))
-      _ = g + (software, Map(name("ripple"), lang("java")))
-      _ = g + (person, Map(name("peter"), age(35)))
+      _ = g + Map(Name("marko"), Person, Age(29))
+      _ = g + Map(Person, Name("vadas"), Age(27))
+      _ = g + Map(Name("lop"), Lang("java"), Software)
+      _ = g + Map(Person, Name("josh"), Age(32))
+      _ = g + Map(Name("ripple"), Software, Lang("java"))
+      _ = g + Map(Person, Name("peter"), Age(35))
     } yield ()
   }
 
@@ -40,12 +39,12 @@ object GrafApp2 extends App {
       }
 
       // create edges
-      _ = (v("marko") --- knows --> v("vadas")).weight(0.5d)
-      _ = (v("marko") --- knows --> v("josh")).weight(1.0d)
-      _ = (v("marko") --- created --> v("lop")).weight(0.4d)
-      _ = (v("josh") --- created --> v("ripple")).weight(1.0d)
-      _ = (v("josh") --- created --> v("lop")).weight(0.4d)
-      _ = (v("peter") --- created --> v("lop")).weight(0.2d)
+      _ = v("marko") --- Map(Knows, Weight(0.5d)) --> v("vadas")
+      _ = v("marko") --- Map(Knows, Weight(1.0d)) --> v("josh")
+      _ = v("marko") --- Map(Created, Weight(0.4d)) --> v("lop")
+      _ = v("josh") --- Map(Created, Weight(1.0d)) --> v("ripple")
+      _ = v("josh") --- Map(Created, Weight(0.4d)) --> v("lop")
+      _ = v("peter") --- Map(Created, Weight(0.2d)) --> v("lop")
     } yield ()
   }
 

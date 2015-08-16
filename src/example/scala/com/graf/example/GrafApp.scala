@@ -17,20 +17,20 @@ object GrafApp extends App {
       g ← G
 
       // create some vertices
-      marko = g + (person, Map(name("marko"), age(29)))
-      vadas = g + (person, Map(name("vadas"), age(27)))
-      lop = g + (software, Map(name("lop"), lang("java")))
-      josh = g + (person, Map(name("josh"), age(32)))
-      ripple = g + (software, Map(name("ripple"), lang("java")))
-      peter = g + (person, Map(name("peter"), age(35)))
+      marko = g + Map(Name("marko"), Person, Age(29))
+      vadas = g + Map(Person, Name("vadas"), Age(27))
+      lop = g + Map(Name("lop"), Lang("java"), Software)
+      josh = g + Map(Person, Name("josh"), Age(32))
+      ripple = g + Map(Name("ripple"), Software, Lang("java"))
+      peter = g + Map(Person, Name("peter"), Age(35))
 
       // link vertices to edges
-      _ = marko --- knows --> vadas weight 0.5d
-      _ = marko --- knows --> josh weight 1.0d
-      _ = marko --- created --> lop weight 0.4d
-      _ = josh --- created --> ripple weight 1.0d
-      _ = josh --- created --> lop weight 0.4d
-      _ = peter --- created --> lop weight 0.2d
+      _ = marko --- Map(Knows, Weight(0.5d)) --> vadas
+      _ = marko --- Map(Knows, Weight(1.0d)) --> josh
+      _ = marko --- Map(Created, Weight(0.4d)) --> lop
+      _ = josh --- Map(Created, Weight(1.0d)) --> ripple
+      _ = josh --- Map(Created, Weight(0.4d)) --> lop
+      _ = peter --- Map(Created, Weight(0.2d)) --> lop
 
       // map over all edges to create a sorted list
       eq = g.E.toList() sortWith { (a, b) ⇒
