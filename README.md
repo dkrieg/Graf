@@ -11,6 +11,8 @@ Technically, **Graf**[T] is an instance of Free Monad, uses a Natural Transforma
 memoization to create a referentially transparent API that given the same input produces the same output despite global state change that may have occurred in the graph.  This of course has benefits and drawback but referentially 
 transparent functions are far easier to reason about. 
 
+[![Build Status](https://secure.travis-ci.org/dkrieg/graf.png?branch=master)](http://travis-ci.org/dkrieg/graf)
+
 ### Example Code
 * [GrafApp.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/com/graf/GrafApp.scala), 
 [GrafApp2.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/com/graf/GrafApp2.scala),
