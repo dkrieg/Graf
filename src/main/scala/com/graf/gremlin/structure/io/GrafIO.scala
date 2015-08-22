@@ -1,4 +1,8 @@
-package com.graf.gremlin.structure.io
+package com.graf.gremlin
+package structure
+package io
+
+import org.apache.tinkerpop.gremlin.structure.io.Io
 
 import scala.language.existentials
 
@@ -25,7 +29,7 @@ case class GrafIO[I <: IO](private[io] val io: I) {
 }
 
 object GrafIO {
-  import org.apache.tinkerpop.gremlin.structure.io.Io
+  import org.apache.tinkerpop.gremlin.structure.io._
   import org.apache.tinkerpop.gremlin.structure.io.graphml.GraphMLIo
   import org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONIo
   import org.apache.tinkerpop.gremlin.structure.io.gryo.GryoIo
@@ -37,7 +41,7 @@ object GrafIO {
   case object Gryo extends Builder
 
   implicit class BuilderAsJava(b: Builder) {
-    def asJava[I <: IO]: Io.Builder[I] = b match {
+    def asJava[I <: Io[_,_,_]]: Io.Builder[I] = b match {
       case GraphM ⇒ GraphMLIo.build.asInstanceOf[Io.Builder[I]]
       case GraphSON ⇒ GraphSONIo.build.asInstanceOf[Io.Builder[I]]
       case Gryo ⇒ GryoIo.build.asInstanceOf[Io.Builder[I]]
