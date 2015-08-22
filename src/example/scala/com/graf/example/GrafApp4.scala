@@ -1,15 +1,12 @@
 package com.graf.example
 
 import com.graf._
-import gremlin.scala._
-import org.apache.tinkerpop.gremlin.structure.io.IoCore.graphson
-import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph
 
 import scala.language.postfixOps
 import scalaz.Scalaz._
 
 object GrafApp4 extends App {
-
+/*
   // create a script to modify and traverse a graph
   val script = Graf {
     for {
@@ -17,10 +14,10 @@ object GrafApp4 extends App {
       g ← G
 
       // create some vertices
-      _ = g + Map(Name("blueprints"), YearCreated(2010), Software)
-      _ = g.V.has(Name("blueprints")).head <-- "dependsOn" --- (g + Map(Name("gremlin"), Software, YearCreated(2009)))
-      _ = g.V.has(Name("gremlin")).head <-- "dependsOn" --- (g + Map(Name("gremlinScala"), Software))
-      _ = g.V.has(Name("gremlinScala")).head <-- "createdBy" --- (g + Map(Person, Name("mpollmeier")))
+      _ = g + (Software, Name("blueprints"), YearCreated(2010))
+      _ = g.verticies.has(Name("blueprints")).head <-- "dependsOn" --- (g + (Software, Name("gremlin"), YearCreated(2009)))
+      _ = g.verticies.has(Name("gremlin")).head <-- "dependsOn" --- (g + (Software, Name("gremlinScala")))
+      _ = g.verticies.has(Name("gremlinScala")).head <-- "createdBy" --- (g + (Person, Name("mpollmeier")))
 
       // map over all edges to create a sorted list
       eq = g.E.toList() sortWith { (a, b) ⇒
@@ -62,4 +59,5 @@ object GrafApp4 extends App {
   graph.close()
 
   // NOTE: We Have Changed The World!
+*/
 }

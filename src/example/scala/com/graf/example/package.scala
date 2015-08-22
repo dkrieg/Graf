@@ -1,6 +1,7 @@
 package com.graf
 
-import gremlin.scala.schema._
+import com.graf.gremlin.structure.schema._
+
 
 package object example {
   val Person = Label("person")

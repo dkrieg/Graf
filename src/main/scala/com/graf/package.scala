@@ -1,19 +1,21 @@
 package com
 
-import gremlin.scala._
+import com.graf.gremlin.structure._
 
-import scalaz.Memo._
 import scalaz.Free._
+import scalaz.Memo._
 import scalaz._
-import scalaz.concurrent.{ Future, Task }
+import scalaz.concurrent.{Future, Task}
 
 package object graf {
   type Graf[A] = FreeC[GrafOp, A]
-  type GrafR[A] = ScalaGraph[Graph] ⇒ OneTimeTask[A]
+  type GrafReader[A] = GrafGraph ⇒ A
+  type GrafTask[A] = GrafReader[OneTimeTask[A]]
 
   sealed trait GrafOp[+A]
 
-  case object GetGraph extends GrafOp[ScalaGraph[Graph]]
+  case object GetGraph extends GrafOp[GrafGraph]
+  case class Point[A](a: A) extends GrafOp[A]
 
   case class OneTimeTask[A](override val get: Future[Throwable \/ A]) extends Task[A](get) {
     private val memo = immutableHashMapMemo {
@@ -40,40 +42,36 @@ package object graf {
 
   def G = liftFC(GetGraph)
 
-  implicit val toState: GrafOp ~> GrafR = new (GrafOp ~> GrafR) {
-    override def apply[A](fa: GrafOp[A]): GrafR[A] = fa match {
+  implicit val toState: GrafOp ~> GrafTask = new (GrafOp ~> GrafTask) {
+    override def apply[A](fa: GrafOp[A]): GrafTask[A] = fa match {
       case GetGraph ⇒ g ⇒ OneTimeTask(Future.delay(\/-(g)))
+      case Point(a) ⇒ g ⇒ OneTimeTask(Future.delay(\/-(a)))
     }
   }
 
-  implicit val GrafRMonad = new Monad[GrafR] {
+  implicit val GrafRMonad = new Monad[GrafTask] {
 
-    override def bind[A, B](fa: GrafR[A])(f: (A) ⇒ GrafR[B]): GrafR[B] = g ⇒ fa(g) flatMap (a ⇒ f(a)(g))
+    override def bind[A, B](fa: GrafTask[A])(f: (A) ⇒ GrafTask[B]): GrafTask[B] = g ⇒ fa(g) flatMap (a ⇒ f(a)(g))
 
-    override def point[A](a: ⇒ A): GrafR[A] = g ⇒ OneTimeTask(Future.delay(\/-(a)))
+    override def point[A](a: ⇒ A): GrafTask[A] = g ⇒ OneTimeTask(Future.delay(\/-(a)))
   }
 
-  implicit val VertexShow = new Show[Vertex] {
-    override def shows(f: Vertex): String = {
-      val name = f.property("name")
-      if (name.isPresent) s"v[${f.id}:${f.label}:${name.value}]"
-      else s"v[${f.id}:${f.label}]"
-    }
+  implicit val GrafApplicative = new Applicative[Graf] {
+    override def point[A](a: ⇒ A): Graf[A] = liftFC(Point(a))
+
+    override def ap[A, B](fa: ⇒ Graf[A])(f: ⇒ Graf[A ⇒ B]): Graf[B] = for {
+      a <- fa
+      n <- f
+    } yield n(a)
+
   }
 
-  implicit val EdgeShow = new Show[Edge] {
-    override def shows(f: Edge): String = {
-      val name = f.property("name")
-      val es = if (name.isPresent) s"e[${f.id}:${f.label}:${name.value}]"
-      else s"e[${f.id}:${f.label}]"
-      implicitly[Show[Vertex]].shows(f.outVertex) + s" --- $es --> " + implicitly[Show[Vertex]].shows(f.inVertex)
-    }
-  }
-
-  implicit class GrafFunctions[A](g: Graf[A]) extends GrafR[A] {
+  implicit class GrafFunctions[A](g: Graf[A]) extends GrafTask[A] {
     def bind(graph: Graph) = apply(graph.asScala)
 
-    override def apply(graph: ScalaGraph[Graph]): OneTimeTask[A] =
+    def bind(graph: GrafGraph) = apply(graph)
+
+    override def apply(graph: GrafGraph): OneTimeTask[A] =
       runFC(g)(toState).apply(graph)
   }
 }

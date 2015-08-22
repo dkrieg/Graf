@@ -1,9 +1,11 @@
 package com.graf.example
 
 import com.graf._
-import gremlin.scala._
-import org.apache.tinkerpop.gremlin.structure.io.IoCore.graphson
-import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph
+import com.graf.gremlin.structure._
+import com.graf.gremlin.structure.io._
+import com.graf.gremlin.structure.util.show._
+import com.graf.gremlin.structure.util.TinkerGraphFactory
+
 import shapeless.HNil
 
 import scala.language.postfixOps
@@ -18,12 +20,12 @@ object GrafApp2 extends App {
       g ← G
 
       // create some vertices
-      _ = g + Map(Name("marko"), Person, Age(29))
-      _ = g + Map(Person, Name("vadas"), Age(27))
-      _ = g + Map(Name("lop"), Lang("java"), Software)
-      _ = g + Map(Person, Name("josh"), Age(32))
-      _ = g + Map(Name("ripple"), Software, Lang("java"))
-      _ = g + Map(Person, Name("peter"), Age(35))
+      _ = g + (Person, Name("marko"), Age(29))
+      _ = g + (Person, Name("vadas"), Age(27))
+      _ = g + (Software, Name("lop"), Lang("java"))
+      _ = g + (Person, Name("josh"), Age(32))
+      _ = g + (Software, Name("ripple"), Lang("java"))
+      _ = g + (Person, Name("peter"), Age(35))
     } yield ()
   }
 
@@ -34,17 +36,17 @@ object GrafApp2 extends App {
       g ← G
 
       // map vertices by name
-      v = g.V.toList().foldLeft(Map.empty[String, Vertex]) { (b, v) ⇒
+      v = g.vertices.toList.foldLeft(Map.empty[String, GrafVertex]) { (b, v) ⇒
         b.updated(v.value("name"), v)
       }
 
       // create edges
-      _ = v("marko") --- Map(Knows, Weight(0.5d)) --> v("vadas")
-      _ = v("marko") --- Map(Knows, Weight(1.0d)) --> v("josh")
-      _ = v("marko") --- Map(Created, Weight(0.4d)) --> v("lop")
-      _ = v("josh") --- Map(Created, Weight(1.0d)) --> v("ripple")
-      _ = v("josh") --- Map(Created, Weight(0.4d)) --> v("lop")
-      _ = v("peter") --- Map(Created, Weight(0.2d)) --> v("lop")
+      _ = v("marko") --- (Knows,   Weight(0.5d)) --> v("vadas")
+      _ = v("marko") --- (Knows,   Weight(1.0d)) --> v("josh")
+      _ = v("marko") --- (Created, Weight(0.4d)) --> v("lop")
+      _ = v("josh")  --- (Created, Weight(1.0d)) --> v("ripple")
+      _ = v("josh")  --- (Created, Weight(0.4d)) --> v("lop")
+      _ = v("peter") --- (Created, Weight(0.2d)) --> v("lop")
     } yield ()
   }
 
@@ -54,8 +56,8 @@ object GrafApp2 extends App {
       // access the Graph
       g ← G
 
-      eq = g.E.toList() sortWith { (a, b) ⇒
-        a.id.asInstanceOf[Long].compareTo(b.id.asInstanceOf[Long]) < 0
+      eq = g.edges.toList sortWith { (a, b) ⇒
+        a.id[Long].compareTo(b.id[Long]) < 0
       }
       //yield a sorted list of the Show[Edge] strings for all edges
     } yield eq map (_.shows)
@@ -70,7 +72,7 @@ object GrafApp2 extends App {
   // NOTE: nothing has happened - the world is unchanged!
 
   // open a Graph
-  val graph = TinkerGraph.open
+  val graph = TinkerGraphFactory.open()
 
   // apply a Graph instance to the script to create a list of runnable Tasks
   val task = script.bind(graph)
@@ -93,7 +95,7 @@ object GrafApp2 extends App {
   task.run.last.foreach(println)
 
   // output the graph
-  graph.io(graphson()).writer.create.writeGraph(Console.out, graph)
+  graph.io(GrafIO.GraphSON).writer.create().writeGraph(Console.out, graph)
 
   //  close the Graph
   graph.close()
