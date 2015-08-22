@@ -5,6 +5,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 libraryDependencies ++= {
   val scalaV = scalaVersion.value
   val gremlinV = "3.0.0-incubating"
+//  val gremlinV = "3.1.0-SNAPSHOT"
   val scalazV = "7.1.3"
   val scalazStreamV = "0.7.2a"
   val scalaTestV = "2.2.4"

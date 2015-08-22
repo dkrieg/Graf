@@ -27,12 +27,12 @@ object GrafApp extends App {
       g ← G
 
       // create some vertices
-      marko =  g + (Person, Name("marko"), Age(29))
-      vadas =  g + (Person, Name("vadas"), Age(27))
-      lop =    g + (Software, Name("lop"), Lang("java"))
-      josh =   g + (Person, Name("josh"), Age(32))
+      marko =  g + (Person,   Name("marko"),  Age(29))
+      vadas =  g + (Person,   Name("vadas"),  Age(27))
+      lop =    g + (Software, Name("lop"),    Lang("java"))
+      josh =   g + (Person,   Name("josh"),   Age(32))
       ripple = g + (Software, Name("ripple"), Lang("java"))
-      peter =  g + (Person, Name("peter"), Age(35))
+      peter =  g + (Person,   Name("peter"),  Age(35))
 
       // link vertices to edges
       _ = marko --- (Knows,   Weight(0.5d)) --> vadas

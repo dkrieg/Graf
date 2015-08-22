@@ -20,12 +20,12 @@ object GrafApp2 extends App {
       g ← G
 
       // create some vertices
-      _ = g + (Person, Name("marko"), Age(29))
-      _ = g + (Person, Name("vadas"), Age(27))
-      _ = g + (Software, Name("lop"), Lang("java"))
-      _ = g + (Person, Name("josh"), Age(32))
+      _ = g + (Person,   Name("marko"),  Age(29))
+      _ = g + (Person,   Name("vadas"),  Age(27))
+      _ = g + (Software, Name("lop"),    Lang("java"))
+      _ = g + (Person,   Name("josh"),   Age(32))
       _ = g + (Software, Name("ripple"), Lang("java"))
-      _ = g + (Person, Name("peter"), Age(35))
+      _ = g + (Person,   Name("peter"),  Age(35))
     } yield ()
   }
 
