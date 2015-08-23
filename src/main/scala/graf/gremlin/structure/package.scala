@@ -1,6 +1,6 @@
 package graf.gremlin
 
-import graf.gremlin.structure.schema.{Label, Atom}
+import graf.gremlin.structure.schema.{ Label, Atom }
 import org.apache.commons.configuration.{ Configuration ⇒ JConfiguration }
 import org.apache.tinkerpop.gremlin.structure.Graph.{
   Variables ⇒ JVariables,
@@ -30,6 +30,7 @@ import org.apache.tinkerpop.gremlin.structure.{
   Direction ⇒ JDirection
 }
 import scala.language.implicitConversions
+import scala.reflect.runtime.universe._
 
 package object structure {
   type Edge = JEdge
@@ -187,9 +188,33 @@ package object structure {
     def asScala = GrafTransaction(tx)
   }
 
-  case class SemiEdge(label: Label, from: GrafVertex, atoms: Atom*) {
-    def -->(to: GrafVertex) = from.addEdge(label, to, atoms:_*)
+  implicit class SemiEdgeFunctionsWithString(label: String) {
+    def ---(from: GrafVertex) = SemiEdge(Label(label), from)
+
+    def -->(right: GrafVertex) = SemiDoubleEdge(Label(label), right)
   }
 
-  case class SemiDoubleEdge(right: GrafVertex, label: Label, atoms: Atom*)
+  implicit class SemiEdgeFunctionsWithLabel(label: Label) {
+    def ---(from: GrafVertex) = SemiEdge(label, from)
+
+    def -->(right: GrafVertex) = SemiDoubleEdge(label, right)
+  }
+
+  implicit class SemiEdgeProductFunctionsWithProduct[A <: Product](t: A) {
+    private val elements = t.productIterator.toList
+    require(elements.exists(a => classOf[Label].isAssignableFrom(a.getClass)), "Semi Edge Product must contain a Label")
+    require(elements.forall(a => classOf[Atom].isAssignableFrom(a.getClass)), "Semi Edge Product must contain only Atom instances")
+    private lazy val atoms = elements.filterNot(a => classOf[Label].isAssignableFrom(a.getClass)).asInstanceOf[List[Atom]]
+    private lazy val label = elements.filter(a => classOf[Label].isAssignableFrom(a.getClass)).head.asInstanceOf[Label]
+
+    def ---(from: GrafVertex) = SemiEdge(label, from, atoms: _*)
+
+    def -->(right: GrafVertex) = SemiDoubleEdge(label, right, atoms: _*)
+  }
+
+  case class SemiEdge(label: Label, from: GrafVertex, atoms: Atom*) {
+    def -->(to: GrafVertex) = from.addEdge(label, to, atoms: _*)
+  }
+
+  case class SemiDoubleEdge(label: Label, right: GrafVertex, atoms: Atom*)
 }
