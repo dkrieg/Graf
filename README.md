@@ -13,9 +13,9 @@ state change that may have occurred in the graph.  This of course has benefits a
 transparent functions are far easier to reason about. 
 
 ### Example Code
-* [GrafApp.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/com/graf/GrafApp.scala), 
-[GrafApp2.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/com/graf/GrafApp2.scala),
-[GrafApp3.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/com/graf/GrafApp3.scala) 
+* [GrafApp.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/graf/GrafApp.scala), 
+[GrafApp2.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/graf/GrafApp2.scala),
+[GrafApp3.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/graf/GrafApp3.scala) 
 For closer examination
 ```scala
 object GrafApp extends App {
