@@ -1,10 +1,7 @@
 package graf.gremlin
 package process.traversal.step.util
 
-import java.lang.{ Long ⇒ JLong }
 import java.util.Spliterator
-import java.util.stream.{ Stream ⇒ JStream }
-
 import scala.collection.JavaConversions._
 
 case class GrafBulkSet[S](private[util] val bulkSet: BulkSet[S]) {

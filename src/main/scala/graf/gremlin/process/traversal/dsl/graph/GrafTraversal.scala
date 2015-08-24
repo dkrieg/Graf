@@ -10,6 +10,9 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 class GrafTraversal[Start, End](private[graph] val traversal: Traversal[Start, End]) extends Iterator[End] {
+  def head: End = toList.head
+
+  def headOption: Option[End] = toList.headOption
 
   def iterate[A, B](): GrafTraversal[A, B] = traversal.iterate().asInstanceOf[Traversal[A, B]]
 

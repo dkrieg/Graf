@@ -1,7 +1,9 @@
 package graf.gremlin
 package structure
 
-import org.apache.tinkerpop.gremlin.structure.T
+import org.apache.tinkerpop.gremlin.structure.T._
+
+import scala.language.implicitConversions
 
 object schema {
 
@@ -16,16 +18,17 @@ object schema {
 
   sealed trait Label extends Atom
   object Label {
-    def apply(label: String): Label = new AtomValue(T.label, label) with Label
+    def apply(s: String): Label = new AtomValue(label, s) with Label
   }
 
   sealed trait ID extends Atom
   object ID {
-    def apply(id: Any): ID = new AtomValue(T.id, id) with ID
+    def apply(s: Any): ID = new AtomValue(id, s) with ID
   }
 
+  trait KeyValue extends Atom
   case class Key[B](key: String) {
-    def apply(value: B): Atom = new AtomValue[String, B](key -> value) with Atom
+    def apply(value: B): KeyValue = new AtomValue[String, B](key -> value) with KeyValue
   }
 
   private[schema] class AtomValue[A <: AnyRef, B <: Any] private[schema] (p: (A, B)) {
@@ -33,6 +36,4 @@ object schema {
     def value = p._2.asInstanceOf[Object]
   }
 }
-
-
 

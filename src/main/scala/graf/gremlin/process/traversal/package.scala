@@ -7,7 +7,12 @@ import scala.collection.JavaConversions._
 import org.apache.tinkerpop.gremlin.process.traversal.{
   Traverser ⇒ JTraverser,
   TraversalSideEffects ⇒ JTraversalSideEffects,
-  Step ⇒ JStep
+  Step ⇒ JStep,
+  Pop ⇒ JPop,
+  P ⇒ JP,
+  Scope ⇒ JScope,
+  Order ⇒ JOrder,
+  Path ⇒ JPath
 }
 import scala.language.implicitConversions
 
@@ -16,6 +21,11 @@ package object traversal {
   type TraverserAdmin[A] = JTraverser.Admin[A]
   type TraversalSideEffects = JTraversalSideEffects
   type Step[Start, End] = JStep[Start, End]
+  type Pop = JPop
+  type P[A] = JP[A]
+  type Scope = JScope
+  type Order = JOrder
+  type Path = JPath
 
   implicit def toGrafTraverser[A](t: Traverser[A]): GrafTraverser[A] =
     new GrafTraverser[A](t)

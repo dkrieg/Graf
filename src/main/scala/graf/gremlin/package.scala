@@ -1,11 +1,18 @@
 package graf
 
-import java.util.Optional
+import java._
 import java.util.function.{ Function ⇒ JFunction, _ }
+import java.util.{ Comparator, Optional, _ }
 
 import scala.language.implicitConversions
 
 package object gremlin {
+  type JDouble = lang.Double
+  type JLong = lang.Long
+  type JMap[A, B] = util.Map[A, B]
+  type JList[A] = util.List[A]
+  type JStream[A] = stream.Stream[A]
+
   implicit def fnToConsumer[A](f: A ⇒ Unit): Consumer[A] = new Consumer[A] {
     override def accept(a: A): Unit = f(a)
   }
@@ -38,6 +45,10 @@ package object gremlin {
     override def test(a: A): Boolean = f(a)
   }
 
+  implicit def fnToBinaryOperator[A](f: (A, A) ⇒ A): BinaryOperator[A] = new BinaryOperator[A] {
+    override def apply(t: A, u: A): A = f(t, u)
+  }
+
   implicit def unaryOpAsFn[A](f: UnaryOperator[A]): A ⇒ A = a ⇒ f(a)
 
   implicit def fnToUnaryOp[A](f: A ⇒ A): UnaryOperator[A] = new UnaryOperator[A] {
@@ -51,4 +62,8 @@ package object gremlin {
   implicit def toOption[A](o: Optional[A]): Option[A] = if (o.isPresent) Some(o.get()) else None
 
   implicit def toOptional[A](o: Option[A]): Optional[A] = if (o.isDefined) Optional.of(o.get) else Optional.empty()
+
+  implicit def toComparator[A](f: (A, A) ⇒ Int): Comparator[A] = new Comparator[A] {
+    override def compare(o1: A, o2: A): Int = f(o1, o2)
+  }
 }

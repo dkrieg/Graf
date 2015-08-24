@@ -4,7 +4,7 @@ package process.traversal.dsl.graph
 import graf.gremlin.process.traversal._
 import graf.gremlin.structure._
 
-class GrafTraversalAdmin[Start, End](private[graph] val admin: Admin[Start, End]) extends GrafTraversal[Start, End](admin.traversal) {
+class GrafTraversalAdmin[Start, End](private[graph] val admin: TraversalAdmin[Start, End]) extends GrafTraversal[Start, End](admin.traversal) {
 
   def equals(other: GrafTraversalAdmin[Start, End]): Boolean = admin.equals(other.admin)
 

@@ -7,13 +7,13 @@ case class GrafGraphTraversalSource(private[graph] val gt: GraphTraversalSource)
 
   def getGraph: Option[GrafGraph] = gt.getGraph.asScala map toGrafGraph
 
-  def E: GraphTraversal[Edge, Edge] = gt.E()
+  def E: GrafEdgeGraphTraversal[GrafEdge] = gt.E()
 
-  def E(edgesIds: Seq[AnyRef]): GraphTraversal[Edge, Edge] = gt.E(edgesIds)
+  def E(edgesIds: Seq[AnyRef]): GrafEdgeGraphTraversal[GrafEdge] = gt.E(edgesIds)
 
-  def V: GraphTraversal[Vertex, Vertex] = gt.V()
+  def V: GrafVertexGraphTraversal[GrafVertex] = gt.V()
 
-  def V(vertexIds: Seq[AnyRef]): GraphTraversal[Vertex, Vertex] = gt.V(vertexIds)
+  def V(vertexIds: Seq[AnyRef]): GrafVertexGraphTraversal[GrafVertex] = gt.V.asAdmin()
 
   def tx(): GrafTransaction = gt.tx()
 

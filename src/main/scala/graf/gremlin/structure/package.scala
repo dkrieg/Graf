@@ -1,6 +1,6 @@
 package graf.gremlin
 
-import java.util.{Iterator => JIterator}
+import java.util.{ Iterator ⇒ JIterator }
 
 import scala.collection.JavaConversions._
 import org.apache.commons.configuration.{ Configuration ⇒ JConfiguration }
@@ -29,7 +29,8 @@ import org.apache.tinkerpop.gremlin.structure.{
   Transaction ⇒ JTransaction,
   Vertex ⇒ JVertex,
   VertexProperty ⇒ JVertexProperty,
-  Direction ⇒ JDirection
+  Direction ⇒ JDirection,
+  T => JT
 }
 import scala.language.implicitConversions
 
@@ -41,8 +42,8 @@ package object structure {
   type Transaction = JTransaction
   type Vertex = JVertex
   type VertexProperty[A] = JVertexProperty[A]
-  type Direction = Direction.Direction
-  type Cardinality = Cardinality.Cardinality
+  type Direction = JDirection
+  type Cardinality = JCardinality
   type Variables = JVariables
   type Features = JFeatures
   type DataTypeFeatures = JDataTypeFeatures
@@ -56,54 +57,7 @@ package object structure {
   type VertexFeatures = JVertexFeatures
   type VertexPropertyFeatures = JVertexPropertyFeatures
   type Configuration = JConfiguration
-
-  object Direction extends Enumeration {
-    type Direction = Value
-    val OUT, IN, BOTH = Value
-
-    def opposite(current: Direction): Direction = current match {
-      case IN ⇒ OUT
-      case OUT ⇒ IN
-      case BOTH ⇒ BOTH
-    }
-  }
-  implicit def toDirection(d: JDirection): Direction = {
-    import JDirection._
-    d match {
-      case `IN` ⇒ Direction.IN
-      case `OUT` ⇒ Direction.OUT
-      case `BOTH` ⇒ Direction.BOTH
-    }
-  }
-  implicit def toJDirection(d: Direction): JDirection = {
-    import Direction._
-    d match {
-      case `IN` ⇒ JDirection.IN
-      case `OUT` ⇒ JDirection.OUT
-      case `BOTH` ⇒ JDirection.BOTH
-    }
-  }
-
-  object Cardinality extends Enumeration {
-    type Cardinality = Value
-    val single, list, set = Value
-  }
-  implicit def toCardinality(c: JCardinality): Cardinality = {
-    import JCardinality._
-    c match {
-      case `single` ⇒ Cardinality.single
-      case `list` ⇒ Cardinality.list
-      case `set` ⇒ Cardinality.set
-    }
-  }
-  implicit def toJCardinality(c: Cardinality): JCardinality = {
-    import Cardinality._
-    c match {
-      case `single` ⇒ JCardinality.single
-      case `list` ⇒ JCardinality.list
-      case `set` ⇒ JCardinality.set
-    }
-  }
+  type T = JT
 
   implicit def toGrafGraph(g: Graph): GrafGraph = GrafGraph(g)
   implicit def toGraph(g: GrafGraph): Graph = g.graph

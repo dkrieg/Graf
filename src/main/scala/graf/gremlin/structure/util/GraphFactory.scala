@@ -18,7 +18,7 @@ trait GraphFactory {
 object GraphFactory extends GraphFactory
 
 object TinkerGraphFactory {
-  def open() = GraphFactory {
+  def open(): GrafGraph = GraphFactory {
     Map(GRAPH -> "org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph")
   }
 }

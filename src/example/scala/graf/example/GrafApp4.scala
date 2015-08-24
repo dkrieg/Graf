@@ -1,12 +1,15 @@
 package graf.example
 
 import graf._
+import graf.gremlin.structure.io._
+import graf.gremlin.structure.syntax._
+import graf.gremlin.structure.util.TinkerGraphFactory
+import graf.gremlin.structure.util.show._
 
 import scala.language.postfixOps
 import scalaz.Scalaz._
 
 object GrafApp4 extends App {
-/*
   // create a script to modify and traverse a graph
   val script = Graf {
     for {
@@ -15,13 +18,13 @@ object GrafApp4 extends App {
 
       // create some vertices
       _ = g + (Software, Name("blueprints"), YearCreated(2010))
-      _ = g.verticies.has(Name("blueprints")).head <-- "dependsOn" --- (g + (Software, Name("gremlin"), YearCreated(2009)))
-      _ = g.verticies.has(Name("gremlin")).head <-- "dependsOn" --- (g + (Software, Name("gremlinScala")))
-      _ = g.verticies.has(Name("gremlinScala")).head <-- "createdBy" --- (g + (Person, Name("mpollmeier")))
+      _ = g.traversal.V.hasKeyValue(Name("blueprints")).head <-- "dependsOn" --- (g + (Software, Name("gremlin"), YearCreated(2009)))
+      _ = g.traversal.V.hasKeyValue(Name("gremlin")).head <-- "dependsOn" --- (g + (Software, Name("gremlinScala")))
+      _ = g.traversal.V.hasKeyValue(Name("gremlinScala")).head <-- "createdBy" --- (g + (Person, Name("mpollmeier")))
 
       // map over all edges to create a sorted list
-      eq = g.E.toList() sortWith { (a, b) ⇒
-        a.id.asInstanceOf[Long].compareTo(b.id.asInstanceOf[Long]) < 0
+      eq = g.traversal.E.toList sortWith { (a, b) ⇒
+        a.id[Long].compareTo(b.id[Long]) < 0
       }
 
       // yield the sorted list of Show[Edge] strings for all edges
@@ -30,7 +33,7 @@ object GrafApp4 extends App {
   // NOTE: nothing has happened - the world is unchanged!
 
   // open a Graph
-  val graph = TinkerGraph.open
+  val graph = TinkerGraphFactory.open()
 
   // apply a Graph instance to the script to create an runnable Task
   val task = script.bind(graph)
@@ -53,11 +56,10 @@ object GrafApp4 extends App {
   task.run.foreach(println)
 
   // output the graph
-  graph.io(graphson()).writer.create.writeGraph(Console.out, graph)
+  graph.io(GrafIO.GraphSON).writer.create.writeGraph(Console.out, graph)
 
   //  close the Graph
   graph.close()
 
   // NOTE: We Have Changed The World!
-*/
 }
