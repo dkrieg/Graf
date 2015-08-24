@@ -5,11 +5,11 @@ import scala.collection.JavaConversions._
 
 case class GrafEdge(private[structure] override val e: Edge) extends GrafElement[Edge] {
 
-  def vertices(direction: Direction) = e.vertices(direction.asJava).toIterator.asScala
+  def vertices(direction: Direction): Iterator[GrafVertex] = e.vertices(direction).toIterator
 
-  def outV = e.outVertex().asScala
+  def outVertex: GrafVertex = e.outVertex()
 
-  def bothV = e.bothVertices().toIterator.asScala
+  def bothVertices: Iterator[GrafVertex] = e.bothVertices().toIterator
 
-  def inV = e.inVertex().asScala
+  def inVertex: GrafVertex = e.inVertex()
 }

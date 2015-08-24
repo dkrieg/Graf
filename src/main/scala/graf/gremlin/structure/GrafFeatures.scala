@@ -85,7 +85,7 @@ case class GrafFeatures(private[structure] val features: Features) {
   case class GrafVertexFeatures(private[structure] val vertexFeatures: VertexFeatures) extends GrafElementFeatures(vertexFeatures) {
     def supportsRemoveVertices: Boolean = vertexFeatures.supportsRemoveVertices()
 
-    def getCardinality(key: String): Cardinality = vertexFeatures.getCardinality(key).asScala
+    def getCardinality(key: String): Cardinality = vertexFeatures.getCardinality(key)
 
     def properties: GrafVertexPropertyFeatures = GrafVertexPropertyFeatures(vertexFeatures.properties())
 

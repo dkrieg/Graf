@@ -2,6 +2,7 @@ package graf.example
 
 import graf._
 import graf.gremlin.structure.io._
+import graf.gremlin.structure.syntax._
 import graf.gremlin.structure.util.show._
 import graf.gremlin.structure.util.TinkerGraphFactory
 

@@ -38,7 +38,7 @@ package object graf {
     override def run: A = memo(get)
   }
 
-  def G = liftFC(GetGraph)
+  def G: Graf[GrafGraph] = liftFC(GetGraph)
 
   implicit val toState: GrafOp ~> GrafTask = new (GrafOp ~> GrafTask) {
     override def apply[A](fa: GrafOp[A]): GrafTask[A] = fa match {
@@ -65,8 +65,6 @@ package object graf {
   }
 
   implicit class GrafFunctions[A](g: Graf[A]) extends GrafTask[A] {
-    def bind(graph: Graph) = apply(graph.asScala)
-
     def bind(graph: GrafGraph) = apply(graph)
 
     override def apply(graph: GrafGraph): OneTimeTask[A] =

@@ -54,7 +54,7 @@ case class GrafTransaction(private[structure] val tx: Transaction) {
 
     def attempt[G <: Graph](retryStrategy: (GrafGraph, GrafGraph ⇒ A) ⇒ A): A = workload.attempt {
       import java.util.function.{ Function ⇒ JFunction }
-      (g: Graph, f: JFunction[Graph, A]) ⇒ retryStrategy(g.asScala, (gg: GrafGraph) ⇒ f(gg.asJava))
+      (g: Graph, f: JFunction[Graph, A]) ⇒ retryStrategy(g, (gg: GrafGraph) ⇒ f(gg))
     }
 
     def exponentialBackoff(tries: Int, initialDelay: Long, exceptionsToRetryOn: Set[Class[_]]): A =
@@ -69,16 +69,16 @@ case class GrafTransaction(private[structure] val tx: Transaction) {
 
   def commit(): Unit = tx.commit()
 
-  def onClose(f: GrafTransaction ⇒ Unit): GrafTransaction = tx.onClose((t: Transaction) ⇒ f(t.asScala)).asScala
+  def onClose(f: GrafTransaction ⇒ Unit): GrafTransaction = tx.onClose((t: Transaction) ⇒ f(t))
 
   def rollback(): Unit = tx.rollback()
 
   def submit[A](work: GrafGraph ⇒ A): Workload[A] =
-    Workload(tx.submit((g: Graph) ⇒ work(g.asScala)))
+    Workload(tx.submit((g: Graph) ⇒ work(g)))
 
   def addTransactionListener(f: Status ⇒ Unit): Unit = tx.addTransactionListener((s: JStatus) ⇒ f(s.asScala))
 
-  def onReadWrite(f: GrafTransaction ⇒ Unit): GrafTransaction = tx.onReadWrite((tx: Transaction) ⇒ f(tx.asScala)).asScala
+  def onReadWrite(f: GrafTransaction ⇒ Unit): GrafTransaction = tx.onReadWrite((tx: Transaction) ⇒ f(tx))
 
   def open(): Unit = tx.open()
 
@@ -86,8 +86,5 @@ case class GrafTransaction(private[structure] val tx: Transaction) {
 
   def close(): Unit = tx.close()
 
-  def createThreadedTx[G <: Graph](): GrafGraph = {
-    val g: G = tx.createThreadedTx()
-    g.asScala
-  }
+  def createThreadedTx[G <: Graph](): GrafGraph = tx.createThreadedTx()
 }

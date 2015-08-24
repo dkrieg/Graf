@@ -5,7 +5,7 @@ import scala.collection.JavaConversions._
 
 trait GrafElement[E <: Element] extends Product with Serializable {
 
-  def graph: GrafGraph = e.graph().asScala
+  def graph: GrafGraph = e.graph()
 
   def id[A]: A = e.id().asInstanceOf[A]
 
@@ -19,13 +19,13 @@ trait GrafElement[E <: Element] extends Product with Serializable {
 
   def values(keys: Seq[String]): Iterator[Any] = e.values(keys: _*).toIterator
 
-  def property[V](key: String, value: V): GrafProperty[V] = e.property(key, value).asScala
+  def property[V](key: String, value: V): GrafProperty[V] = e.property(key, value)
 
-  def property[V](key: String): GrafProperty[V] = e.property[V](key).asScala
+  def property[V](key: String): GrafProperty[V] = e.property[V](key)
 
-  def properties[P <: GrafProperty[Any]]: Iterator[GrafProperty[Any]] = e.properties[Any]().toIterator.asScala
+  def properties: Iterator[GrafProperty[Any]] = e.properties[Any]().toIterator
 
-  def properties[P <: GrafProperty[Any]](keys: Seq[String]): Iterator[GrafProperty[Any]] = e.properties[Any](keys: _*).toIterator.asScala
+  def properties(keys: Seq[String]): Iterator[GrafProperty[Any]] = e.properties[Any](keys: _*).toIterator
 
   def remove(): Unit = e.remove()
 

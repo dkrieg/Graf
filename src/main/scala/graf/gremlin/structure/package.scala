@@ -1,6 +1,8 @@
 package graf.gremlin
 
-import graf.gremlin.structure.schema.{ Label, Atom }
+import java.util.{Iterator => JIterator}
+
+import scala.collection.JavaConversions._
 import org.apache.commons.configuration.{ Configuration ⇒ JConfiguration }
 import org.apache.tinkerpop.gremlin.structure.Graph.{
   Variables ⇒ JVariables,
@@ -30,7 +32,6 @@ import org.apache.tinkerpop.gremlin.structure.{
   Direction ⇒ JDirection
 }
 import scala.language.implicitConversions
-import scala.reflect.runtime.universe._
 
 package object structure {
   type Edge = JEdge
@@ -66,24 +67,20 @@ package object structure {
       case BOTH ⇒ BOTH
     }
   }
-  implicit class JDirectionAsScala(current: JDirection) {
-    def asScala: Direction = {
-      import JDirection._
-      current match {
-        case `IN` ⇒ Direction.IN
-        case `OUT` ⇒ Direction.OUT
-        case `BOTH` ⇒ Direction.BOTH
-      }
+  implicit def toDirection(d: JDirection): Direction = {
+    import JDirection._
+    d match {
+      case `IN` ⇒ Direction.IN
+      case `OUT` ⇒ Direction.OUT
+      case `BOTH` ⇒ Direction.BOTH
     }
   }
-  implicit class DirectionAsJava(current: Direction) {
-    def asJava: JDirection = {
-      import Direction._
-      current match {
-        case `IN` ⇒ JDirection.IN
-        case `OUT` ⇒ JDirection.OUT
-        case `BOTH` ⇒ JDirection.BOTH
-      }
+  implicit def toJDirection(d: Direction): JDirection = {
+    import Direction._
+    d match {
+      case `IN` ⇒ JDirection.IN
+      case `OUT` ⇒ JDirection.OUT
+      case `BOTH` ⇒ JDirection.BOTH
     }
   }
 
@@ -91,33 +88,25 @@ package object structure {
     type Cardinality = Value
     val single, list, set = Value
   }
-  implicit class JCardinalityAsScala(c: JCardinality) {
-    def asScala: Cardinality = {
-      import JCardinality._
-      c match {
-        case `single` ⇒ Cardinality.single
-        case `list` ⇒ Cardinality.list
-        case `set` ⇒ Cardinality.set
-      }
+  implicit def toCardinality(c: JCardinality): Cardinality = {
+    import JCardinality._
+    c match {
+      case `single` ⇒ Cardinality.single
+      case `list` ⇒ Cardinality.list
+      case `set` ⇒ Cardinality.set
     }
   }
-  implicit class CardinalityAsJava(c: Cardinality) {
-    def asJava: JCardinality = {
-      import Cardinality._
-      c match {
-        case `single` ⇒ JCardinality.single
-        case `list` ⇒ JCardinality.list
-        case `set` ⇒ JCardinality.set
-      }
+  implicit def toJCardinality(c: Cardinality): JCardinality = {
+    import Cardinality._
+    c match {
+      case `single` ⇒ JCardinality.single
+      case `list` ⇒ JCardinality.list
+      case `set` ⇒ JCardinality.set
     }
   }
 
-  implicit class GraphAsScala(g: Graph) {
-    def asScala = GrafGraph(g)
-  }
-  implicit class GrafGraphAsJava(gg: GrafGraph) {
-    def asJava: Graph = gg.graph
-  }
+  implicit def toGrafGraph(g: Graph): GrafGraph = GrafGraph(g)
+  implicit def toGraph(g: GrafGraph): Graph = g.graph
 
   implicit class ElementAsScala[A](e: Element) {
     def asScala = e match {
@@ -126,95 +115,30 @@ package object structure {
       case p: VertexProperty[A] ⇒ GrafVertexProperty(p)
     }
   }
-  implicit class GrafElementAsJava[E <: Element](ge: GrafElement[E]) {
-    def asJava = ge.e
-  }
 
-  implicit class PropertyAsScala[A](p: Property[A]) {
-    def asScala = GrafProperty(p)
-  }
-  implicit class GrafPropertyAsJava[A](p: GrafProperty[A]) {
-    def asJava = p.property
-  }
-  implicit class IteratorPropertyAsScala[A](it: Iterator[Property[A]]) {
-    def asScala: Iterator[GrafProperty[A]] = it map GrafProperty.apply
-  }
+  implicit def toGrafProperty[A](p: Property[A]): GrafProperty[A] = GrafProperty(p)
+  implicit def toProperty[A](p: GrafProperty[A]): Property[A] = p.property
 
-  implicit class VertexAsScala(v: Vertex) {
-    def asScala = GrafVertex(v)
-  }
-  implicit class GrafVertexAsJava(v: GrafVertex) {
-    def asJava = v.e
-  }
-  implicit class IteratorVertexAsScala(it: Iterator[Vertex]) {
-    def asScala = it map GrafVertex.apply
-  }
-  implicit class IteratorGrafVertexAsJava(it: Iterator[GrafVertex]) {
-    def asJava = it map (_.asJava)
-  }
+  implicit def toGrafVertex(v: Vertex): GrafVertex = GrafVertex(v)
+  implicit def toVertex(v: GrafVertex): Vertex = v.e
 
-  implicit class VertexPropertyAsScala[A](v: VertexProperty[A]) {
-    def asScala = GrafVertexProperty(v)
-  }
-  implicit class GrafVertexPropertyAsJava[A](v: GrafVertexProperty[A]) {
-    def asJava = v.e
-  }
-  implicit class IteratorVertexPropertyAsScala[A](it: Iterator[VertexProperty[A]]) {
-    def asScala = it map GrafVertexProperty.apply
-  }
+  implicit def toGrafVertexProperty[A](p: VertexProperty[A]): GrafVertexProperty[A] = GrafVertexProperty(p)
+  implicit def toVertexProperty[A](p: GrafVertexProperty[A]): VertexProperty[A] = p.e
 
-  implicit class EdgeAsScala(e: Edge) {
-    def asScala = GrafEdge(e)
-  }
-  implicit class GrafEdgeAsJava(ge: GrafEdge) {
-    def asJava = ge.e
-  }
-  implicit class IteratorEdgeAsScala(it: Iterator[Edge]) {
-    def asScala = it map GrafEdge.apply
-  }
-  implicit class IteratorGrafEdgeAsJava(it: Iterator[GrafEdge]) {
-    def asJava = it map (_.asJava)
-  }
+  implicit def toGrafEdge(e: Edge): GrafEdge = GrafEdge(e)
+  implicit def toEdge(e: GrafEdge): Edge = e.e
 
-  implicit class VariablesAsScala(v: Variables) {
-    def asScala = GrafVariables(v)
-  }
+  implicit def toGrafVariables(v: Variables): GrafVariables = GrafVariables(v)
+  implicit def toGrafFeatures(f: Features): GrafFeatures = GrafFeatures(f)
+  implicit def toGrafTransaction(tx: Transaction): GrafTransaction = GrafTransaction(tx)
 
-  implicit class FeaturesAsScala(f: Features) {
-    def asScala = GrafFeatures(f)
-  }
+  implicit def toIteratorGrafVertex(it: Iterator[Vertex]): Iterator[GrafVertex] = it map toGrafVertex
+  implicit def toIteratorGrafEdge(it: Iterator[Edge]): Iterator[GrafEdge] = it map toGrafEdge
+  implicit def toIteratorGrafProperty[A](it: Iterator[Property[A]]): Iterator[GrafProperty[A]] = it map toGrafProperty
+  implicit def toIteratorGrafVertexProperty[A](it: Iterator[VertexProperty[A]]): Iterator[GrafVertexProperty[A]] = it map toGrafVertexProperty
 
-  implicit class TransactionAsScala(tx: Transaction) {
-    def asScala = GrafTransaction(tx)
-  }
-
-  implicit class SemiEdgeFunctionsWithString(label: String) {
-    def ---(from: GrafVertex) = SemiEdge(Label(label), from)
-
-    def -->(right: GrafVertex) = SemiDoubleEdge(Label(label), right)
-  }
-
-  implicit class SemiEdgeFunctionsWithLabel(label: Label) {
-    def ---(from: GrafVertex) = SemiEdge(label, from)
-
-    def -->(right: GrafVertex) = SemiDoubleEdge(label, right)
-  }
-
-  implicit class SemiEdgeProductFunctionsWithProduct[A <: Product](t: A) {
-    private val elements = t.productIterator.toList
-    require(elements.exists(a => classOf[Label].isAssignableFrom(a.getClass)), "Semi Edge Product must contain a Label")
-    require(elements.forall(a => classOf[Atom].isAssignableFrom(a.getClass)), "Semi Edge Product must contain only Atom instances")
-    private lazy val atoms = elements.filterNot(a => classOf[Label].isAssignableFrom(a.getClass)).asInstanceOf[List[Atom]]
-    private lazy val label = elements.filter(a => classOf[Label].isAssignableFrom(a.getClass)).head.asInstanceOf[Label]
-
-    def ---(from: GrafVertex) = SemiEdge(label, from, atoms: _*)
-
-    def -->(right: GrafVertex) = SemiDoubleEdge(label, right, atoms: _*)
-  }
-
-  case class SemiEdge(label: Label, from: GrafVertex, atoms: Atom*) {
-    def -->(to: GrafVertex) = from.addEdge(label, to, atoms: _*)
-  }
-
-  case class SemiDoubleEdge(label: Label, right: GrafVertex, atoms: Atom*)
+  implicit def toIteratorVertex(it: Iterator[GrafVertex]): JIterator[Vertex] = it map toVertex
+  implicit def toIteratorEdge(it: Iterator[GrafEdge]): JIterator[Edge] = it map toEdge
+  implicit def toIteratorProperty[A](it: Iterator[GrafProperty[A]]): JIterator[Property[A]] = it map toProperty
+  implicit def toIteratorVertexProperty[A](it: Iterator[GrafVertexProperty[A]]): JIterator[VertexProperty[A]] = it map toVertexProperty
 }

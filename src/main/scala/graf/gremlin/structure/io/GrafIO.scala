@@ -2,8 +2,6 @@ package graf.gremlin
 package structure
 package io
 
-import org.apache.tinkerpop.gremlin.structure.io.Io
-
 import scala.language.existentials
 
 case class GrafIO[I <: IO](private[io] val io: I) {
