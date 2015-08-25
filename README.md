@@ -93,10 +93,14 @@ import structure.syntax._
 
 val g = TinkerGraphFactory.open()             
 //g: Graph = tinkergraph[vertices:0 edges:0]
-
+```
+**Elegant Syntax for defining Vertex and Edge**
+```scala
 (g + "karen") --- "knows" --> (g + "daniel")  
 //res0: Edge = e[2][0-knows->1]
-
+```
+**Direct use of underlying Java API**
+```scala
 //Choose the standard graph traversal implementation
 val t0 = g.traversal()                        
 //t0: GraphTraversalSource = graphtraversalsource[tinkergraph[vertices:2 edges:1], standard]
@@ -106,7 +110,9 @@ val t0 = g.traversal()
 //  - parenthesis are required
 t0.V().outE().outE()                          
 //res1: GraphTraversal[Vertex,Edge] = [GraphStep([],vertex), VertexStep(OUT,edge), VertexStep(OUT,edge)]  
-      
+```
+**Enhanced Traversal API for Scala**
+```scala
 //Choose the custom grafBuilder graph traversal implementation
 val t1 = g.traversal(grafBuilder)             
 //t1: GrafGraphTraversalSource = graphtraversalsource[tinkergraph[vertices:2 edges:1], standard]
@@ -115,8 +121,8 @@ val t1 = g.traversal(grafBuilder)
 //  - Does not Compile: provides compile-time checking over runtime failure
 //  - no-parenthesis treat the steps as property paths
 t1.V.outE.outE                                
-
 ```
+**More to come...**
 ### References
 * [TinkerPop3] (http://tinkerpop.incubator.apache.org/) provides graph computing capabilities for both graph databases (OLTP) and graph analytic systems (OLAP)
 * [Scalaz] (https://github.com/scalaz/scalaz) is a Scala library for functional programming.
