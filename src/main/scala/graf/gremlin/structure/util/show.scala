@@ -1,4 +1,5 @@
-package graf.gremlin.structure.util
+package graf.gremlin
+package structure.util
 
 import graf.gremlin.structure._
 

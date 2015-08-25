@@ -1,6 +1,7 @@
 package graf.example
 
 import graf._
+import gremlin._
 import graf.gremlin.structure._
 import graf.gremlin.structure.convert.decorateAll._
 import graf.gremlin.structure.syntax._
@@ -37,7 +38,7 @@ object GrafApp2 extends App {
       g ← G
 
       // map vertices by name
-      v = g.traversal.V().asScala.toList.foldLeft(Map.empty[String, Vertex]) { (b, v) ⇒
+      v = g.traversal(grafBuilder).V.toList.foldLeft(Map.empty[String, Vertex]) { (b, v) ⇒
         b.updated(v.value("name"), v)
       }
 
@@ -57,8 +58,8 @@ object GrafApp2 extends App {
       // access the Graph
       g ← G
 
-      eq = g.traversal.E().toList.asScala sortWith { (a, b) ⇒
-        Ordering[Long].lt(a.id.asInstanceOf[Long], b.id.asInstanceOf[Long])
+      eq = g.traversal(grafBuilder).E.toList sortWith { (a, b) ⇒
+        Ordering[Long].lt(a.ID, b.ID)
       }
       //yield a sorted list of the Show[Edge] strings for all edges
     } yield eq map (_.shows)

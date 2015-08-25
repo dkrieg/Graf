@@ -1,4 +1,4 @@
-import graf.gremlin.structure._
+import graf.gremlin._
 
 import scalaz.Free._
 import scalaz.Memo._

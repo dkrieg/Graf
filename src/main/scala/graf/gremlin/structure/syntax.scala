@@ -1,6 +1,7 @@
-package graf.gremlin.structure
+package graf.gremlin
+package structure
 
-import graf.gremlin.structure.schema.{ KeyValue, Atom, Label }
+import graf.gremlin.structure.schema.{Atom, KeyValue, Label}
 import org.apache.tinkerpop.gremlin.process.traversal.P
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 
@@ -58,13 +59,11 @@ object syntax {
 
   case class SemiDoubleEdge(label: Label, right: Vertex, atoms: Atom*)
 
-  implicit class GraphTraversalSourcesOps(t: GraphTraversalSource) {
-    def V: GraphTraversal[Vertex, Vertex] = t.V()
-
-    def E: GraphTraversal[Edge, Edge] = t.E()
-  }
-
   implicit class GraphTraversalOps[S, E](t: GraphTraversal[S, E]) {
     def hasKeyValue(k: KeyValue): GraphTraversal[S, E] = t.has(k.key.asInstanceOf[String], P.eq(k.value))
+  }
+
+  implicit class GraphElementOps[E <: Element](e: E) {
+    def ID[A]: A = e.id().asInstanceOf[A]
   }
 }

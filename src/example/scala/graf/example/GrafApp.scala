@@ -1,6 +1,7 @@
 package graf.example
 
 import graf._
+import gremlin._
 import graf.gremlin.structure.convert.decorateAll._
 import graf.gremlin.structure.syntax._
 import graf.gremlin.structure.util.TinkerGraphFactory
@@ -35,8 +36,8 @@ object GrafApp extends App {
       _ = peter --- (Created, Weight(0.2d)) --> lop
 
       // map over all edges to create a sorted list
-      eq = g.traversal.E().asScala.toList sortWith { (a, b) ⇒
-        Ordering[Long].lt(a.id.asInstanceOf[Long], b.id.asInstanceOf[Long])
+      eq = g.traversal(grafBuilder).E.toList sortWith { (a, b) ⇒
+        Ordering[Long].lt(a.ID, b.ID)
       }
 
       // yield the sorted list of Show[Edge] strings for all edges

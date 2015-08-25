@@ -13,27 +13,32 @@ object schema {
    */
   sealed trait Atom {
     def key: Object
+
     def value: Object
   }
 
   sealed trait Label extends Atom
+
   object Label {
     def apply(s: String): Label = new AtomValue(label, s) with Label
   }
 
   sealed trait ID extends Atom
+
   object ID {
     def apply(s: Any): ID = new AtomValue(id, s) with ID
   }
 
   trait KeyValue extends Atom
+
   case class Key[B](key: String) {
-    def apply(value: B): KeyValue = new AtomValue[String, B](key -> value) with KeyValue
+    def apply(value: B): KeyValue = new AtomValue[String, B](key, value) with KeyValue
   }
 
-  private[schema] class AtomValue[A <: AnyRef, B <: Any] private[schema] (p: (A, B)) {
-    def key = p._1.asInstanceOf[Object]
-    def value = p._2.asInstanceOf[Object]
+  private[schema] class AtomValue[A <: AnyRef, B <: Any] private[schema] (k: A, v: B) {
+    def key = k.asInstanceOf[Object]
+
+    def value = v.asInstanceOf[Object]
   }
 }
 

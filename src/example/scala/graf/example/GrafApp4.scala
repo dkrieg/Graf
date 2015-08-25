@@ -1,6 +1,7 @@
 package graf.example
 
 import graf._
+import gremlin._
 import graf.gremlin.structure._
 import graf.gremlin.structure.convert.decorateAll._
 import graf.gremlin.structure.syntax._
@@ -20,13 +21,14 @@ object GrafApp4 extends App {
 
       // create some vertices
       _ = g + (Software, Name("blueprints"), YearCreated(2010))
-      _ = g.traversal.V().hasKeyValue(Name("blueprints")).asScala.toList.head <-- "dependsOn" --- (g + (Software, Name("gremlin"), YearCreated(2009)))
-      _ = g.traversal.V().hasKeyValue(Name("gremlin")).asScala.toList.head <-- "dependsOn" --- (g + (Software, Name("gremlinScala")))
-      _ = g.traversal.V().hasKeyValue(Name("gremlinScala")).asScala.toList.head <-- "createdBy" --- (g + (Person, Name("mpollmeier")))
+      t = g.traversal(grafBuilder)
+      _ = t.V.hasKeyValue(Name("blueprints")).toList.head <-- "dependsOn" --- (g + (Software, Name("gremlin"), YearCreated(2009)))
+      _ = t.V.hasKeyValue(Name("gremlin")).toList.head <-- "dependsOn" --- (g + (Software, Name("gremlinScala")))
+      _ = t.V.hasKeyValue(Name("gremlinScala")).toList.head <-- "createdBy" --- (g + (Person, Name("mpollmeier")))
 
       // map over all edges to create a sorted list
-      eq = g.traversal.E().asScala.toList.sortWith { (a, b) ⇒
-        Ordering[Long].lt(a.id.asInstanceOf[Long], b.id.asInstanceOf[Long])
+      eq = t.E.toList.sortWith { (a, b) ⇒
+        Ordering[Long].lt(a.ID[Long], b.ID[Long])
       }
 
       // yield the sorted list of Show[Edge] strings for all edges
