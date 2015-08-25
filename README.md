@@ -43,8 +43,8 @@ object GrafApp extends App {
       _ = peter --- (Created, Weight(0.2d)) --> lop
 
       // map over all edges to create a sorted list
-      eq = g.edges.toList sortWith { (a, b) ⇒
-        a.id[Long].compareTo(b.id[Long]) < 0
+      eq = g.traversal.E().asScala.toList sortWith { (a, b) ⇒
+        Ordering[Long].lt(a.id.asInstanceOf[Long], b.id.asInstanceOf[Long])
       }
 
       // yield the sorted list of Show[Edge] strings for all edges
@@ -76,7 +76,7 @@ object GrafApp extends App {
   task.run.foreach(println)
 
   // output the graph
-  graph.io(GrafIO.GraphSON).writer.create().writeGraph(Console.out, graph)
+  graph.io(IoCore.graphson()).writer.create().writeGraph(Console.out, graph)
 
   //  close the Graph
   graph.close()
