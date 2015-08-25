@@ -91,14 +91,31 @@ import graf.gremlin._
 import structure.util._
 import structure.syntax._
 
-val g = TinkerGraphFactory.open()             //g: graf.gremlin.Graph = tinkergraph[vertices:0 edges:0]
-(g + "karen") --- "knows" --> (g + "daniel")  //res0: org.apache.tinkerpop.gremlin.structure.Edge = e[2][0-knows->1]
+val g = TinkerGraphFactory.open()             
+//g: Graph = tinkergraph[vertices:0 edges:0]
 
-val t0 = g.traversal()                        //t0: org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource = graphtraversalsource[tinkergraph[vertices:2 edges:1], standard]
-t0.V().outE().outE()                          //res1: org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal[org.apache.tinkerpop.gremlin.structure.Vertex,org.apache.tinkerpop.gremlin.structure.Edge] = [GraphStep([],vertex), VertexStep(OUT,edge), VertexStep(OUT,edge)]  
-                                              //  Standard Java Traversal - invalid path that leads to runtime error
-val t1 = g.traversal(grafBuilder)             //t1: graf.gremlin.process.traversal.dsl.graph.GrafGraphTraversalSource = graphtraversalsource[tinkergraph[vertices:2 edges:1], standard]
-t1.V.outE.outE                                //  Graf traversal that provides compile-time checking over runtime failure
+(g + "karen") --- "knows" --> (g + "daniel")  
+//res0: Edge = e[2][0-knows->1]
+
+//Choose the standard graph traversal implementation
+val t0 = g.traversal()                        
+//t0: GraphTraversalSource = graphtraversalsource[tinkergraph[vertices:2 edges:1], standard]
+
+//Standard Java Traversal 
+//  - invalid path that leads to runtime error
+//  - parenthesis are required
+t0.V().outE().outE()                          
+//res1: GraphTraversal[Vertex,Edge] = [GraphStep([],vertex), VertexStep(OUT,edge), VertexStep(OUT,edge)]  
+      
+//Choose the custom grafBuilder graph traversal implementation
+val t1 = g.traversal(grafBuilder)             
+//t1: GrafGraphTraversalSource = graphtraversalsource[tinkergraph[vertices:2 edges:1], standard]
+
+//Graf traversal
+//  - Does not Compile: provides compile-time checking over runtime failure
+//  - no-parenthesis treat the steps as property paths
+t1.V.outE.outE                                
+
 ```
 ### References
 * [TinkerPop3] (http://tinkerpop.incubator.apache.org/) provides graph computing capabilities for both graph databases (OLTP) and graph analytic systems (OLAP)
