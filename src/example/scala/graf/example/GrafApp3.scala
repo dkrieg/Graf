@@ -2,11 +2,12 @@ package graf.example
 
 import graf._
 import graf.gremlin.structure._
-import graf.gremlin.structure.io._
+import graf.gremlin.structure.convert.decorateAll._
 import graf.gremlin.structure.syntax._
-import graf.gremlin.structure.util.show._
 import graf.gremlin.structure.util.TinkerGraphFactory
-import shapeless.{ ::, HNil }
+import graf.gremlin.structure.util.show._
+import org.apache.tinkerpop.gremlin.structure.io.IoCore
+import shapeless.{::, HNil}
 
 import scala.language.postfixOps
 import scalaz.Scalaz._
@@ -38,7 +39,7 @@ object GrafApp3 extends App {
       g ← G
 
       // map vertices by name
-      v = g.vertices.toList.foldLeft(Map.empty[String, GrafVertex]) { (b, v) ⇒
+      v = g.traversal.V().asScala.toList.foldLeft(Map.empty[String, Vertex]) { (b, v) ⇒
         b.updated(v.value("name"), v)
       }
 
@@ -58,8 +59,8 @@ object GrafApp3 extends App {
       // access the Graph
       g ← G
 
-      eq = g.edges.toList sortWith { (a, b) ⇒
-        a.id[Long].compareTo(b.id[Long]) < 0
+      eq = g.traversal.E().asScala.toList.sortWith { (a, b) ⇒
+        Ordering[Long].lt(a.id.asInstanceOf[Long], b.id.asInstanceOf[Long])
       }
       //yield a sorted list of the Show[Edge] strings for all edges
     } yield eq map (_.shows)
@@ -99,7 +100,7 @@ object GrafApp3 extends App {
   task.run.runLog.run.head.last.foreach(println)
 
   // output the graph
-  graph.io(GrafIO.GraphSON).writer.create().writeGraph(Console.out, graph)
+  graph.io(IoCore.graphson()).writer.create().writeGraph(Console.out, graph)
 
   //  close the Graph
   graph.close()

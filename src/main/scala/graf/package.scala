@@ -7,12 +7,12 @@ import scalaz.concurrent.{Future, Task}
 
 package object graf {
   type Graf[A] = FreeC[GrafOp, A]
-  type GrafReader[A] = GrafGraph ⇒ A
+  type GrafReader[A] = Graph ⇒ A
   type GrafTask[A] = GrafReader[OneTimeTask[A]]
 
   sealed trait GrafOp[+A]
 
-  case object GetGraph extends GrafOp[GrafGraph]
+  case object GetGraph extends GrafOp[Graph]
   case class Point[A](a: A) extends GrafOp[A]
 
   case class OneTimeTask[A](override val get: Future[Throwable \/ A]) extends Task[A](get) {
@@ -38,7 +38,7 @@ package object graf {
     override def run: A = memo(get)
   }
 
-  def G: Graf[GrafGraph] = liftFC(GetGraph)
+  def G: Graf[Graph] = liftFC(GetGraph)
 
   implicit val toState: GrafOp ~> GrafTask = new (GrafOp ~> GrafTask) {
     override def apply[A](fa: GrafOp[A]): GrafTask[A] = fa match {
@@ -65,9 +65,9 @@ package object graf {
   }
 
   implicit class GrafFunctions[A](g: Graf[A]) extends GrafTask[A] {
-    def bind(graph: GrafGraph) = apply(graph)
+    def bind(graph: Graph) = apply(graph)
 
-    override def apply(graph: GrafGraph): OneTimeTask[A] =
+    override def apply(graph: Graph): OneTimeTask[A] =
       runFC(g)(toState).apply(graph)
   }
 }

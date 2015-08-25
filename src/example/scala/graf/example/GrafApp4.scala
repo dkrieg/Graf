@@ -1,10 +1,12 @@
 package graf.example
 
 import graf._
-import graf.gremlin.structure.io._
+import graf.gremlin.structure._
+import graf.gremlin.structure.convert.decorateAll._
 import graf.gremlin.structure.syntax._
 import graf.gremlin.structure.util.TinkerGraphFactory
 import graf.gremlin.structure.util.show._
+import org.apache.tinkerpop.gremlin.structure.io.IoCore
 
 import scala.language.postfixOps
 import scalaz.Scalaz._
@@ -18,13 +20,13 @@ object GrafApp4 extends App {
 
       // create some vertices
       _ = g + (Software, Name("blueprints"), YearCreated(2010))
-      _ = g.traversal.V.hasKeyValue(Name("blueprints")).head <-- "dependsOn" --- (g + (Software, Name("gremlin"), YearCreated(2009)))
-      _ = g.traversal.V.hasKeyValue(Name("gremlin")).head <-- "dependsOn" --- (g + (Software, Name("gremlinScala")))
-      _ = g.traversal.V.hasKeyValue(Name("gremlinScala")).head <-- "createdBy" --- (g + (Person, Name("mpollmeier")))
+      _ = g.traversal.V().hasKeyValue(Name("blueprints")).asScala.toList.head <-- "dependsOn" --- (g + (Software, Name("gremlin"), YearCreated(2009)))
+      _ = g.traversal.V().hasKeyValue(Name("gremlin")).asScala.toList.head <-- "dependsOn" --- (g + (Software, Name("gremlinScala")))
+      _ = g.traversal.V().hasKeyValue(Name("gremlinScala")).asScala.toList.head <-- "createdBy" --- (g + (Person, Name("mpollmeier")))
 
       // map over all edges to create a sorted list
-      eq = g.traversal.E.toList sortWith { (a, b) ⇒
-        a.id[Long].compareTo(b.id[Long]) < 0
+      eq = g.traversal.E().asScala.toList.sortWith { (a, b) ⇒
+        Ordering[Long].lt(a.id.asInstanceOf[Long], b.id.asInstanceOf[Long])
       }
 
       // yield the sorted list of Show[Edge] strings for all edges
@@ -56,7 +58,7 @@ object GrafApp4 extends App {
   task.run.foreach(println)
 
   // output the graph
-  graph.io(GrafIO.GraphSON).writer.create.writeGraph(Console.out, graph)
+  graph.io(IoCore.graphson()).writer.create().writeGraph(Console.out, graph)
 
   //  close the Graph
   graph.close()
