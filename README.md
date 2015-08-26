@@ -86,6 +86,7 @@ object GrafApp extends App {
 ```
 
 ### Benefits
+**Simple utilities to get things started**
 ```scala
 import graf.gremlin._
 import structure.util._
@@ -121,6 +122,31 @@ val t1 = g.traversal(grafBuilder)
 //  - Does not Compile: provides compile-time checking over runtime failure
 //  - no-parenthesis treat the steps as property paths
 t1.V.outE.outE                                
+```
+**Choice of Explicit conversions between Java and Scala Functions and Collections**
+```scala
+import graf.gremlin.structure.convert.decorateAll._
+import graf.gremlin.structure.convert.decorateAsJava._
+import graf.gremlin.structure.convert.decorateAsScala._
+import java.util.function.BiFunction
+
+def a: (Long, Boolean) ⇒ Int = ???
+def b: BiFunction[Long, Boolean, Int] = ???
+
+def c: (Long, Boolean) ⇒ Int = b.asScala
+def d: BiFunction[Long, Boolean, Int]  = a.asJava
+```
+**Choice of Automatic conversions between Java and Scala Functions and Collections**
+```scala
+import graf.gremlin.structure.convert.wrapAll._
+import graf.gremlin.structure.convert.wrapAsJava._
+import graf.gremlin.structure.convert.wrapAsScala._
+
+def a: (Long, Boolean) ⇒ Int = ???
+def b: BiFunction[Long, Boolean, Int] = ???
+
+def c: (Long, Boolean) ⇒ Int = b
+def d: BiFunction[Long, Boolean, Int]  = a
 ```
 **More to come...**
 ### References
