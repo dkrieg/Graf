@@ -3,6 +3,9 @@ package process.traversal.dsl.graph
 
 import graf.gremlin.structure.convert.wrapAll._
 import graf.gremlin.structure.convert.decorateAll._
+import org.apache.tinkerpop.gremlin.process.traversal.Traversal
+import org.apache.tinkerpop.gremlin.process.traversal.step.util.BulkSet
+import java.util.stream.{ Stream ⇒ JStream }
 
 class GrafTraversal[Start, End](private[graph] val traversal: Traversal[Start, End]) extends Iterator[End] {
   def head: End = toList.head

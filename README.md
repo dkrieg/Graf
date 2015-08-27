@@ -148,6 +148,25 @@ def b: BiFunction[Long, Boolean, Int] = ???
 def c: (Long, Boolean) ⇒ Int = b
 def d: BiFunction[Long, Boolean, Int]  = a
 ```
+**Building blocks for define strongly-typed Vertex and Edge properties**
+```scala
+package greatful.dead
+
+import graf.gremlin.structure.schema._
+
+object schema {
+  val Song         = Label("song")
+  val Artist       = Label("artist")
+  val SungBy       = Label("sung_by")
+  val WrittenBy    = Label("written_by")
+  val FollowedBy   = Label("followed_by")
+
+  val Name         = Key[String]("name")
+  val SongType     = Key[String]("song_type")
+  val Weight       = Key[Int]("weight")
+  val Performances = Key[Int]("performances")
+}
+```
 **More to come...**
 ### References
 * [TinkerPop3] (http://tinkerpop.incubator.apache.org/) provides graph computing capabilities for both graph databases (OLTP) and graph analytic systems (OLAP)

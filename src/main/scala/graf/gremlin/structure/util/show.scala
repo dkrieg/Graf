@@ -1,7 +1,7 @@
 package graf.gremlin
 package structure.util
 
-import graf.gremlin.structure._
+import org.apache.tinkerpop.gremlin.structure._
 
 import scalaz.Show.showFromToString
 

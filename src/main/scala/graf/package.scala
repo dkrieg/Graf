@@ -1,4 +1,4 @@
-import graf.gremlin._
+import org.apache.tinkerpop.gremlin.structure.Graph
 
 import scalaz.Free._
 import scalaz.Memo._

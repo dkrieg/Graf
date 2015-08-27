@@ -2,6 +2,8 @@ package graf.gremlin
 package structure.util
 
 import graf.gremlin.structure.convert.wrapAll._
+import org.apache.commons.configuration.Configuration
+import org.apache.tinkerpop.gremlin.structure.Graph
 import org.apache.tinkerpop.gremlin.structure.util.GraphFactory._
 
 trait GraphFactory {

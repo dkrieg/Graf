@@ -1,329 +1,465 @@
 package graf.gremlin
 package process.traversal.dsl.graph
 
+import org.apache.tinkerpop.gremlin.process.traversal.step.util.Tree
+import org.apache.tinkerpop.gremlin.process.traversal._
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.{ __, GraphTraversal }
+import org.apache.tinkerpop.gremlin.structure._
 import structure.convert.wrapAll._
+import structure.convert.decorateAll._
+import java.lang.{ Long ⇒ JLong, Double ⇒ JDouble }
+import java.util.{ Map ⇒ JMap, List ⇒ JList }
 
-class GrafGraphTraversal[Start, End](private[graph] val graphTraversal: GraphTraversal[Start, End]) extends GrafTraversal[Start, End](graphTraversal) {
+class GrafGraphTraversal[S, E](private[graph] override val traversal: GraphTraversal[S, E]) extends GrafTraversal[S, E](traversal) {
+  private def startV: GrafVertexTraversal[Vertex] = __.start[Vertex]()
 
-  def cap[E2](sideEffectKey: String, sideEffectKeys: String*): GrafGraphTraversal[Start, E2] =
-    graphTraversal.cap(sideEffectKey, sideEffectKeys: _*).asInstanceOf[GraphTraversal[Start, E2]]
+  private def startE: GrafEdgeTraversal[Edge] = __.start[Edge]()
 
-  def by: GrafGraphTraversal[Start, End] =
-    graphTraversal.by()
+  ///////////////////// MAP STEPS /////////////////////
 
-  def sample(scope: Scope, amountToSample: Int): GrafGraphTraversal[Start, End] =
-    graphTraversal.sample(scope, amountToSample)
+  def mapT[E2](function: Traverser[E] ⇒ E2): GrafGraphTraversal[S, E2] =
+    traversal.map(function)
 
-  def min[E2 <: Number]: GrafGraphTraversal[Start, E2] =
-    graphTraversal.min().asInstanceOf[GraphTraversal[Start, E2]]
+  def mapV[E2](f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2]): GrafGraphTraversal[S, E2] =
+    traversal.map(f(startV))
 
-  def is(predicate: P[End]): GrafGraphTraversal[Start, End] =
-    graphTraversal.is(predicate)
+  def mapE[E2](f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2]): GrafGraphTraversal[S, E2] =
+    traversal.map(f(startE))
 
-  def cyclicPath: GrafGraphTraversal[Start, End] =
-    graphTraversal.cyclicPath()
+  def flatMapT[E2](f: Traverser[E] ⇒ Iterator[E2]): GrafGraphTraversal[S, E2] =
+    traversal.flatMap[E2]((t: Traverser[E]) ⇒ f(t).asJava)
 
-  def tree: GrafGraphTraversal[Start, Tree[_]] =
-    graphTraversal.tree()
+  def flatMapV[E2](f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2]): GrafGraphTraversal[S, E2] =
+    traversal.flatMap(f(startV))
 
-  def drop: GrafGraphTraversal[Start, End] =
-    graphTraversal.drop()
+  def flatMapE[E2](f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2]): GrafGraphTraversal[S, E2] =
+    traversal.flatMap(f(startE))
 
-  def is(value: Any): GrafGraphTraversal[Start, End] =
-    graphTraversal.is(value)
+  def identity(): GrafGraphTraversal[S, E] =
+    traversal.identity()
 
-  def tree(sideEffectKey: String): GrafGraphTraversal[Start, End] =
-    graphTraversal.tree(sideEffectKey)
+  def constant[E2](e: E2): GrafGraphTraversal[S, E2] =
+    traversal.constant(e)
 
-  def count(scope: Scope): GrafGraphTraversal[Start, JLong] =
-    graphTraversal.count(scope)
+  def order: GrafGraphTraversal[S, E] =
+    traversal.order()
 
-  def times(maxLoops: Int): GrafGraphTraversal[Start, End] =
-    graphTraversal.times(maxLoops)
+  def order(scope: Scope): GrafGraphTraversal[S, E] =
+    traversal.order(scope)
 
-  def repeat(repeatTraversal: GrafTraversal[_, End]): GrafGraphTraversal[Start, End] =
-    graphTraversal.repeat(repeatTraversal)
+  def path: GrafGraphTraversal[S, Path] =
+    traversal.path()
 
-  def sideEffect(sideEffectTraversal: GrafTraversal[_, _]): GrafGraphTraversal[Start, End] =
-    graphTraversal.sideEffect(sideEffectTraversal)
+  def matchV[E2](f: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, JMap[String, E2]] =
+    traversal.`match`(f.map(t ⇒ toTraversal(t(startV))): _*).asInstanceOf[GraphTraversal[S, JMap[String, E2]]]
 
-  def to(direction: Direction, edgeLabels: String*): GrafGraphTraversal[Start, Vertex] =
-    graphTraversal.to(direction, edgeLabels: _*)
+  def matchE[E2](f: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, JMap[String, E2]] =
+    traversal.`match`(f.map(t ⇒ toTraversal(t(startE))): _*).asInstanceOf[GraphTraversal[S, JMap[String, E2]]]
 
-  def select[E2](selectKey1: String, selectKey2: String, otherSelectKeys: String*): GrafGraphTraversal[Start, JMap[String, E2]] =
-    graphTraversal.select(selectKey1, selectKey2, otherSelectKeys: _*).asInstanceOf[GraphTraversal[Start, JMap[String, E2]]]
+  def sack[E2](): GrafGraphTraversal[S, E2] =
+    traversal.sack().asInstanceOf[GraphTraversal[S, E2]]
 
-  def inject(injections: End*): GrafGraphTraversal[Start, End] =
-    graphTraversal.inject(injections: _*)
+  def select[E2](pop: Pop, selectKey1: String, selectKey2: String, otherSelectKeys: String*): GrafGraphTraversal[S, JMap[String, E2]] =
+    traversal.select(pop, selectKey1, selectKey2, otherSelectKeys: _*).asInstanceOf[GraphTraversal[S, JMap[String, E2]]]
 
-  def by[V](element: Element ⇒ V, comparator: Ordering[V]): GrafGraphTraversal[Start, End] =
-    graphTraversal.by(element, comparator)
+  def select[E2](selectKey1: String, selectKey2: String, otherSelectKeys: String*): GrafGraphTraversal[S, JMap[String, E2]] =
+    traversal.select(selectKey1, selectKey2, otherSelectKeys: _*).asInstanceOf[GraphTraversal[S, JMap[String, E2]]]
 
-  def select[E2](pop: Pop, selectKey1: String, selectKey2: String, otherSelectKeys: String*): GrafGraphTraversal[Start, JMap[String, E2]] =
-    graphTraversal.select(pop, selectKey1, selectKey2, otherSelectKeys: _*).asInstanceOf[GraphTraversal[Start, JMap[String, E2]]]
+  def select[E2](pop: Pop, selectKey: String): GrafGraphTraversal[S, E2] =
+    traversal.select(pop, selectKey).asInstanceOf[GraphTraversal[S, E2]]
 
-  def group[K, R]: GrafGraphTraversal[Start, JMap[K, R]] =
-    graphTraversal.group().asInstanceOf[GraphTraversal[Start, JMap[K, R]]]
+  def select[E2](selectKey: String): GrafGraphTraversal[S, E2] =
+    traversal.select(selectKey).asInstanceOf[GraphTraversal[S, E2]]
 
-  def map[E2](mapTraversal: GrafTraversal[_, E2]): GrafGraphTraversal[Start, E2] =
-    graphTraversal.map(mapTraversal)
+  def unfold[E2]: GrafGraphTraversal[S, E2] =
+    traversal.unfold().asInstanceOf[GraphTraversal[S, E2]]
 
-  def where(whereTraversal: GrafTraversal[_, _]): GrafGraphTraversal[Start, End] =
-    graphTraversal.where(whereTraversal)
+  def fold: GrafGraphTraversal[S, JList[E]] =
+    traversal.fold()
 
-  def choose[E2](traversalPredicate: GrafTraversal[_, _], trueChoice: GrafTraversal[_, E2], falseChoice: GrafTraversal[_, E2]): GrafGraphTraversal[Start, E2] =
-    graphTraversal.choose(traversalPredicate, trueChoice, falseChoice)
+  def fold[E2](seed: E2, fold: (E2, E) ⇒ E2): GrafGraphTraversal[S, E2] =
+    traversal.fold(seed, fold)
 
-  def tail(limit: Long): GrafGraphTraversal[Start, End] =
-    graphTraversal.tail(limit)
+  def count: GrafGraphTraversal[S, JLong] =
+    traversal.count()
 
-  def emit(emitPredicate: Traverser[End] ⇒ Boolean): GrafGraphTraversal[Start, End] =
-    graphTraversal.emit(emitPredicate)
+  def count(scope: Scope): GrafGraphTraversal[S, JLong] =
+    traversal.count(scope)
 
-  def sum(): GrafGraphTraversal[Start, JDouble] =
-    graphTraversal.sum()
+  def sum: GrafGraphTraversal[S, JDouble] =
+    traversal.sum()
 
-  def max[E2 <: Number](): GrafGraphTraversal[Start, E2] =
-    graphTraversal.max().asInstanceOf[GraphTraversal[Start, E2]]
+  def sum(scope: Scope): GrafGraphTraversal[S, JDouble] =
+    traversal.sum(scope)
 
-  def union[E2](unionTraversals: GrafTraversal[_, E2]*): GrafGraphTraversal[Start, E2] =
-    graphTraversal.union(unionTraversals.map(toTraversal(_)): _*)
+  def max[E2 <: Number]: GrafGraphTraversal[S, E2] =
+    traversal.max().asInstanceOf[GraphTraversal[S, E2]]
 
-  def constant[E2](e: E2): GrafGraphTraversal[Start, E2] =
-    graphTraversal.constant(e)
+  def max[E2 <: Number](scope: Scope): GrafGraphTraversal[S, E2] =
+    traversal.max(scope).asInstanceOf[GraphTraversal[S, E2]]
 
-  def addInE(firstVertexKeyOrEdgeLabel: String, edgeLabelOrSecondVertexKey: String, propertyKeyValues: AnyRef*): GrafGraphTraversal[Start, Edge] =
-    graphTraversal.addInE(firstVertexKeyOrEdgeLabel, edgeLabelOrSecondVertexKey, propertyKeyValues: _*)
+  def min[E2 <: Number]: GrafGraphTraversal[S, E2] =
+    traversal.min().asInstanceOf[GraphTraversal[S, E2]]
 
-  def range(low: Long, high: Long): GrafGraphTraversal[Start, End] =
-    graphTraversal.range(low, high)
+  def min[E2 <: Number](scope: Scope): GrafGraphTraversal[S, E2] =
+    traversal.min(scope).asInstanceOf[GraphTraversal[S, E2]]
 
-  def mean(): GrafGraphTraversal[Start, JDouble] =
-    graphTraversal.mean()
+  def mean: GrafGraphTraversal[S, JDouble] =
+    traversal.mean()
 
-  def branch[M, E2](branchTraversal: GrafTraversal[_, M]): GrafGraphTraversal[Start, E2] =
-    graphTraversal.branch(branchTraversal).asInstanceOf[GraphTraversal[Start, E2]]
+  def mean(scope: Scope): GrafGraphTraversal[S, JDouble] =
+    traversal.mean(scope)
 
-  def groupCount[E2]: GrafGraphTraversal[Start, JMap[E2, JLong]] =
-    graphTraversal.groupCount().asInstanceOf[GraphTraversal[Start, JMap[E2, JLong]]]
+  def group[K, R]: GrafGraphTraversal[S, JMap[K, R]] =
+    traversal.group().asInstanceOf[GraphTraversal[S, JMap[K, R]]]
 
-  def groupCount(sideEffectKey: String): GrafGraphTraversal[Start, End] =
-    graphTraversal.groupCount(sideEffectKey)
+  def groupCount[E2]: GrafGraphTraversal[S, JMap[E2, JLong]] =
+    traversal.groupCount().asInstanceOf[GraphTraversal[S, JMap[E2, JLong]]]
 
-  def addV(kv: AnyRef, keyValues: AnyRef*): GrafGraphTraversal[Start, Vertex] =
-    graphTraversal.addV(kv +: keyValues: _*)
+  def tree: GrafGraphTraversal[S, Tree[_]] =
+    traversal.tree()
 
-  def aggregate(sideEffectKey: String): GrafGraphTraversal[Start, End] =
-    graphTraversal.aggregate(sideEffectKey)
-
-  def range[E2](scope: Scope, low: Long, high: Long): GrafGraphTraversal[Start, E2] =
-    graphTraversal.range(scope, low, high).asInstanceOf[GraphTraversal[Start, E2]]
-
-  def filter(filterTraversal: GrafTraversal[_, _]): GrafGraphTraversal[Start, End] =
-    graphTraversal.filter(filterTraversal)
-
-  def as(stepLabel: String, stepLabels: String*): GrafGraphTraversal[Start, End] =
-    graphTraversal.as(stepLabel, stepLabels: _*)
-
-  def choose[E2](p: End ⇒ Boolean, t: GrafTraversal[_, E2], f: GrafTraversal[_, E2]): GrafGraphTraversal[Start, E2] =
-    graphTraversal.choose(p, t, f)
-
-  def not(notTraversal: GrafTraversal[_, _]): GrafGraphTraversal[Start, End] =
-    graphTraversal.not(notTraversal)
-
-  def sack[E2](): GrafGraphTraversal[Start, E2] =
-    graphTraversal.sack().asInstanceOf[GraphTraversal[Start, E2]]
-
-  def coin(probability: Double): GrafGraphTraversal[Start, End] =
-    graphTraversal.coin(probability)
-
-  def limit(limit: Long): GrafGraphTraversal[Start, End] =
-    graphTraversal.limit(limit)
-
-  def choose[M, E2](choiceFunction: End ⇒ M): GrafGraphTraversal[Start, E2] =
-    graphTraversal.choose(choiceFunction).asInstanceOf[GraphTraversal[Start, E2]]
-
-  def fold[E2](seed: E2, fold: (E2, End) ⇒ E2): GrafGraphTraversal[Start, E2] =
-    graphTraversal.fold(seed, fold)
-
-  def min[E2 <: Number](scope: Scope): GrafGraphTraversal[Start, E2] =
-    graphTraversal.min(scope).asInstanceOf[GraphTraversal[Start, E2]]
-
-  def select[E2](selectKey: String): GrafGraphTraversal[Start, E2] =
-    graphTraversal.select(selectKey).asInstanceOf[GraphTraversal[Start, E2]]
-
-  def profile(): GrafGraphTraversal[Start, End] =
-    graphTraversal.profile()
-
-  def subgraph(sideEffectKey: String): GrafGraphTraversal[Start, Edge] =
-    graphTraversal.subgraph(sideEffectKey)
-
-  def filter(predicate: Traverser[End] ⇒ Boolean): GrafGraphTraversal[Start, End] =
-    graphTraversal.filter(predicate)
-
-  def until(untilTraversal: GrafTraversal[_, _]): GrafGraphTraversal[Start, End] =
-    graphTraversal.until(untilTraversal)
-
-  def coalesce[E2](coalesceTraversals: GrafTraversal[_, E2]*): GrafGraphTraversal[Start, E2] =
-    graphTraversal.coalesce(coalesceTraversals.map(toTraversal(_)): _*)
-
-  def barrier(): GrafGraphTraversal[Start, End] =
-    graphTraversal.barrier()
-
-  def select[E2](pop: Pop, selectKey: String): GrafGraphTraversal[Start, E2] =
-    graphTraversal.select(pop, selectKey).asInstanceOf[GraphTraversal[Start, E2]]
-
-  def sample(amountToSample: Int): GrafGraphTraversal[Start, End] =
-    graphTraversal.sample(amountToSample)
-
-  def iterate(): GrafGraphTraversal[Start, End] =
-    graphTraversal.iterate()
-
-  def tail[E2](scope: Scope): GrafGraphTraversal[Start, E2] =
-    graphTraversal.tail(scope).asInstanceOf[GraphTraversal[Start, E2]]
-
-  def toV(direction: Direction): GrafGraphTraversal[Start, Vertex] =
-    graphTraversal.toV(direction)
-
-  def flatMap[E2](flatMapTraversal: GrafTraversal[_, E2]): GrafGraphTraversal[Start, E2] =
-    graphTraversal.flatMap(flatMapTraversal)
-
-  def addOutE(
-    firstVertexKeyOrEdgeLabel: String,
-    edgeLabelOrSecondVertexKey: String,
-    propertyKeyValues: AnyRef*): GrafGraphTraversal[Start, Edge] =
-    graphTraversal.addOutE(firstVertexKeyOrEdgeLabel, edgeLabelOrSecondVertexKey, propertyKeyValues: _*)
-
-  def count(): GrafGraphTraversal[Start, JLong] =
-    graphTraversal.count()
-
-  def by(byTraversal: GrafTraversal[_, _]): GrafGraphTraversal[Start, End] =
-    graphTraversal.by(byTraversal)
-
-  def by(order: Order): GrafGraphTraversal[Start, End] =
-    graphTraversal.by(order)
-
-  def max[E2 <: Number](scope: Scope): GrafGraphTraversal[Start, E2] =
-    graphTraversal.max(scope).asInstanceOf[GraphTraversal[Start, E2]]
+  def addV(kv: AnyRef, keyValues: AnyRef*): GrafVertexTraversal[S] =
+    traversal.addV(kv +: keyValues: _*)
 
   def addE(
     direction: Direction,
     firstVertexKeyOrEdgeLabel: String,
     edgeLabelOrSecondVertexKey: String,
-    propertyKeyValues: AnyRef*): GraphTraversal[Start, Edge] =
-    graphTraversal.addE(direction, firstVertexKeyOrEdgeLabel, edgeLabelOrSecondVertexKey, propertyKeyValues)
+    propertyKeyValues: AnyRef*): GrafEdgeTraversal[S] =
+    traversal.addE(
+      direction,
+      firstVertexKeyOrEdgeLabel,
+      edgeLabelOrSecondVertexKey,
+      propertyKeyValues)
 
-  def by(tokenProjection: T): GrafGraphTraversal[Start, End] =
-    graphTraversal.by(tokenProjection)
+  def addOutE(
+    firstVertexKeyOrEdgeLabel: String,
+    edgeLabelOrSecondVertexKey: String,
+    propertyKeyValues: AnyRef*): GrafEdgeTraversal[S] =
+    traversal.addOutE(
+      firstVertexKeyOrEdgeLabel,
+      edgeLabelOrSecondVertexKey,
+      propertyKeyValues: _*)
 
-  def identity(): GrafGraphTraversal[Start, End] =
-    graphTraversal.identity()
+  def addInE(
+    firstVertexKeyOrEdgeLabel: String,
+    edgeLabelOrSecondVertexKey: String,
+    propertyKeyValues: AnyRef*): GrafEdgeTraversal[S] =
+    traversal.addInE(
+      firstVertexKeyOrEdgeLabel,
+      edgeLabelOrSecondVertexKey,
+      propertyKeyValues: _*)
 
-  def emit(): GrafGraphTraversal[Start, End] =
-    graphTraversal.emit()
+  ///////////////////// FILTER STEPS /////////////////////
 
-  def option[M, E2](pickToken: M, traversalOption: GrafTraversal[End, E2]): GrafGraphTraversal[Start, End] =
-    graphTraversal.option(pickToken, traversalOption)
+  def filterT(p: Traverser[E] ⇒ Boolean): GrafGraphTraversal[S, E] =
+    traversal.filter(p)
 
-  def tail: GrafGraphTraversal[Start, End] =
-    graphTraversal.tail()
+  def filterV(f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.filter(f(startV))
 
-  def order: GrafGraphTraversal[Start, End] =
-    graphTraversal.order()
+  def filterE(f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.filter(f(startE))
 
-  def map[E2](function: Traverser[End] ⇒ E2): GrafGraphTraversal[Start, E2] =
-    graphTraversal.map(function)
+  def orV(f: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]), fs: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, E] =
+    traversal.or((f +: fs).map(t ⇒ toTraversal(t(startV))): _*)
 
-  def tail[E2](scope: Scope, limit: Long): GrafGraphTraversal[Start, E2] =
-    graphTraversal.tail(scope, limit).asInstanceOf[GraphTraversal[Start, E2]]
+  def orE(f: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]), fs: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, E] =
+    traversal.or((f +: fs).map(t ⇒ toTraversal(t(startE))): _*)
 
-  def fold(): GrafGraphTraversal[Start, JList[End]] =
-    graphTraversal.fold()
+  def andV(f: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]), fs: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, E] =
+    traversal.and((f +: fs).map(t ⇒ toTraversal(t(startV))): _*)
 
-  def sum(scope: Scope): GrafGraphTraversal[Start, JDouble] =
-    graphTraversal.sum(scope)
+  def andE(f: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]), fs: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, E] =
+    traversal.and((f +: fs).map(t ⇒ toTraversal(t(startE))): _*)
 
-  def emit(emitTraversal: GrafTraversal[_, _]): GrafGraphTraversal[Start, End] =
-    graphTraversal.emit(emitTraversal)
+  def inject(i: E, injections: E*): GrafGraphTraversal[S, E] =
+    traversal.inject(i +: injections: _*)
 
-  def toE(direction: Direction, edgeLabels: String*): GrafGraphTraversal[Start, Edge] =
-    graphTraversal.toE(direction, edgeLabels: _*)
+  def dedup: GrafGraphTraversal[S, E] = traversal.dedup()
 
-  def by[V](traversal: GrafTraversal[_, _], endComparator: Ordering[V]): GrafGraphTraversal[Start, End] =
-    graphTraversal.by(traversal, endComparator)
+  def dedup(dl: String, dedupLabels: String*): GrafGraphTraversal[S, E] =
+    traversal.dedup(dl +: dedupLabels: _*)
 
-  def by(elementPropertyKey: String): GrafGraphTraversal[Start, End] =
-    graphTraversal.by(elementPropertyKey)
+  def dedup(scope: Scope, dedupLabels: String*): GrafGraphTraversal[S, E] =
+    traversal.dedup(scope, dedupLabels: _*)
 
-  def order(scope: Scope): GrafGraphTraversal[Start, End] =
-    graphTraversal.order(scope)
+  def whereV(f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.where(f(startV))
 
-  def limit[E2](scope: Scope, limit: Long): GrafGraphTraversal[Start, E2] =
-    graphTraversal.limit(scope, limit).asInstanceOf[GraphTraversal[Start, E2]]
+  def whereE(f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.where(f(startE))
 
-  def by(comparator: Ordering[End]): GrafGraphTraversal[Start, End] =
-    graphTraversal.by(comparator)
+  def where(startKey: String, predicate: P[String]): GrafGraphTraversal[S, E] =
+    traversal.where(startKey, predicate)
 
-  def dedup(scope: Scope, dedupLabels: String*): GrafGraphTraversal[Start, End] =
-    graphTraversal.dedup(scope, dedupLabels: _*)
+  def where(predicate: P[String]): GrafGraphTraversal[S, E] =
+    traversal.where(predicate)
 
-  def group(sideEffectKey: String): GrafGraphTraversal[Start, End] =
-    graphTraversal.group(sideEffectKey)
+  def is(predicate: P[E]): GrafGraphTraversal[S, E] =
+    traversal.is(predicate)
 
-  def dedup(dedupLabels: String*): GrafGraphTraversal[Start, End] =
-    graphTraversal.dedup(dedupLabels: _*)
+  def is(value: Any): GrafGraphTraversal[S, E] =
+    traversal.is(value)
 
-  def by[V](f: V ⇒ AnyRef): GrafGraphTraversal[Start, End] =
-    graphTraversal.by(f)
+  def notV(f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.not(f(startV))
 
-  def mean(scope: Scope): GrafGraphTraversal[Start, JDouble] =
-    graphTraversal.mean(scope)
+  def notE(f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.not(f(startE))
 
-  def `match`[E2](matchTraversals: GrafTraversal[_, _]*): GrafGraphTraversal[Start, JMap[String, E2]] =
-    graphTraversal.`match`(matchTraversals.map(toTraversal(_)): _*).asInstanceOf[GraphTraversal[Start, JMap[String, E2]]]
+  def coin(probability: Double): GrafGraphTraversal[S, E] =
+    traversal.coin(probability)
 
-  def choose[M, E2](choiceTraversal: GrafTraversal[_, M]): GrafGraphTraversal[Start, E2] =
-    graphTraversal.choose(choiceTraversal).asInstanceOf[GraphTraversal[Start, E2]]
+  def range(low: Long, high: Long): GrafGraphTraversal[S, E] =
+    traversal.range(low, high)
 
-  def option[E2](traversalOption: GrafTraversal[End, E2]): GrafGraphTraversal[Start, End] =
-    graphTraversal.option(traversalOption)
+  def range[E2](scope: Scope, low: Long, high: Long): GrafGraphTraversal[S, E2] =
+    traversal.range(scope, low, high).asInstanceOf[GraphTraversal[S, E2]]
 
-  def simplePath: GrafGraphTraversal[Start, End] =
-    graphTraversal.simplePath()
+  def limit(limit: Long): GrafGraphTraversal[S, E] =
+    traversal.limit(limit)
 
-  def sideEffect(consumer: Traverser[End] ⇒ Unit): GrafGraphTraversal[Start, End] =
-    graphTraversal.sideEffect(consumer)
+  def limit[E2](scope: Scope, limit: Long): GrafGraphTraversal[S, E2] =
+    traversal.limit(scope, limit).asInstanceOf[GraphTraversal[S, E2]]
 
-  def branch[M, E2](f: Traverser[End] ⇒ M): GrafGraphTraversal[Start, E2] =
-    graphTraversal.branch((t: Traverser[End]) ⇒ f(t)).asInstanceOf[GraphTraversal[Start, E2]]
+  def tail(limit: Long): GrafGraphTraversal[S, E] =
+    traversal.tail(limit)
 
-  def path: GrafGraphTraversal[Start, Path] =
-    graphTraversal.path()
+  def tail[E2](scope: Scope): GrafGraphTraversal[S, E2] =
+    traversal.tail(scope).asInstanceOf[GraphTraversal[S, E2]]
 
-  def by[V](elementPropertyProjection: String, propertyValueComparator: Ordering[V]): GrafGraphTraversal[Start, End] =
-    graphTraversal.by(elementPropertyProjection, propertyValueComparator)
+  def tail: GrafGraphTraversal[S, E] =
+    traversal.tail()
 
-  def barrier(maxBarrierSize: Int): GrafGraphTraversal[Start, End] =
-    graphTraversal.barrier(maxBarrierSize)
+  def tail[E2](scope: Scope, limit: Long): GrafGraphTraversal[S, E2] =
+    traversal.tail(scope, limit).asInstanceOf[GraphTraversal[S, E2]]
 
-  def where(startKey: String, predicate: P[String]): GrafGraphTraversal[Start, End] =
-    graphTraversal.where(startKey, predicate)
+  def timeLimit(timeLimit: Long): GrafGraphTraversal[S, E] =
+    traversal.timeLimit(timeLimit)
 
-  def store(sideEffectKey: String): GrafGraphTraversal[Start, End] =
-    graphTraversal.store(sideEffectKey)
+  def simplePath: GrafGraphTraversal[S, E] =
+    traversal.simplePath()
 
-  def until(until: Traverser[End] ⇒ Boolean): GrafGraphTraversal[Start, End] =
-    graphTraversal.until((u: Traverser[End]) ⇒ until(u))
+  def cyclicPath: GrafGraphTraversal[S, E] =
+    traversal.cyclicPath()
 
-  def unfold[E2](): GrafGraphTraversal[Start, E2] =
-    graphTraversal.unfold().asInstanceOf[GraphTraversal[Start, E2]]
+  def sample(scope: Scope, amountToSample: Int): GrafGraphTraversal[S, E] =
+    traversal.sample(scope, amountToSample)
 
-  def sack[V](sackFunction: (V, End) ⇒ V): GrafGraphTraversal[Start, End] =
-    graphTraversal.sack(sackFunction)
+  def sample(amountToSample: Int): GrafGraphTraversal[S, E] =
+    traversal.sample(amountToSample)
 
-  def sack[V](sackOperator: (V, V) ⇒ V, elementPropertyKey: String): GrafGraphTraversal[Start, End] =
-    graphTraversal.sack(sackOperator, elementPropertyKey)
+  def drop: GrafGraphTraversal[S, E] =
+    traversal.drop()
 
-  def where(predicate: P[String]): GrafGraphTraversal[Start, End] =
-    graphTraversal.where(predicate)
+  ///////////////////// SIDE-EFFECT STEPS /////////////////////
+
+  def sideEffectT(consumer: Traverser[E] ⇒ Unit): GrafGraphTraversal[S, E] =
+    traversal.sideEffect(consumer)
+
+  def sideEffectV(f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.sideEffect(f(startV))
+
+  def sideEffectE(f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.sideEffect(f(startE))
+
+  def cap[E2](sideEffectKey: String, sideEffectKeys: String*): GrafGraphTraversal[S, E2] =
+    traversal.cap(sideEffectKey, sideEffectKeys: _*).asInstanceOf[GraphTraversal[S, E2]]
+
+  def subgraph(sideEffectKey: String): GrafEdgeTraversal[S] =
+    traversal.subgraph(sideEffectKey)
+
+  def aggregate(sideEffectKey: String): GrafGraphTraversal[S, E] =
+    traversal.aggregate(sideEffectKey)
+
+  def group(sideEffectKey: String): GrafGraphTraversal[S, E] =
+    traversal.group(sideEffectKey)
+
+  def groupCount(sideEffectKey: String): GrafGraphTraversal[S, E] =
+    traversal.groupCount(sideEffectKey)
+
+  def tree(sideEffectKey: String): GrafGraphTraversal[S, E] =
+    traversal.tree(sideEffectKey)
+
+  def sack[V](sackFunction: (V, E) ⇒ V): GrafGraphTraversal[S, E] =
+    traversal.sack(sackFunction)
+
+  def sack[V](sackOperator: (V, V) ⇒ V, elementPropertyKey: String): GrafGraphTraversal[S, E] =
+    traversal.sack(sackOperator, elementPropertyKey)
+
+  def store(sideEffectKey: String): GrafGraphTraversal[S, E] =
+    traversal.store(sideEffectKey)
+
+  def profile: GrafGraphTraversal[S, E] =
+    traversal.profile()
+
+  ///////////////////// BRANCH STEPS /////////////////////
+
+  def branchT[M, E2](f: Traverser[E] ⇒ M): GrafGraphTraversal[S, E2] =
+    traversal.branch((t: Traverser[E]) ⇒ f(t)).asInstanceOf[GraphTraversal[S, E2]]
+
+  def branchV[M, E2](f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, M]): GrafGraphTraversal[S, E2] =
+    traversal.branch(f(startV)).asInstanceOf[GraphTraversal[S, E2]]
+
+  def branchE[M, E2](f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, M]): GrafGraphTraversal[S, E2] =
+    traversal.branch(f(startE)).asInstanceOf[GraphTraversal[S, E2]]
+
+  def chooseV[M, E2](f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, M]): GrafGraphTraversal[S, E2] =
+    traversal.choose(f(startV)).asInstanceOf[GraphTraversal[S, E2]]
+
+  def chooseE[M, E2](f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, M]): GrafGraphTraversal[S, E2] =
+    traversal.choose(f(startE)).asInstanceOf[GraphTraversal[S, E2]]
+
+  def chooseV[E2](
+    p: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _],
+    t: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2],
+    f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2]): GrafGraphTraversal[S, E2] =
+    traversal.choose(
+      p(startV), t(startV), f(startV))
+
+  def chooseE[E2](
+    p: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _],
+    t: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2],
+    f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2]): GrafGraphTraversal[S, E2] =
+    traversal.choose(
+      p(startE), t(startE), f(startE))
+
+  def choosePV[E2](
+    p: E ⇒ Boolean,
+    t: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2],
+    f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2]): GrafGraphTraversal[S, E2] =
+    traversal.choose(p, t(startV), f(startV))
+
+  def choosePE[E2](
+    p: E ⇒ Boolean,
+    t: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2],
+    f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2]): GrafGraphTraversal[S, E2] =
+    traversal.choose(p, t(startE), f(startE))
+
+  def choose[M, E2](choiceFunction: E ⇒ M): GrafGraphTraversal[S, E2] =
+    traversal.choose(choiceFunction).asInstanceOf[GraphTraversal[S, E2]]
+
+  def unionV[E2](
+    f1: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2]),
+    fs: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2])*): GrafGraphTraversal[S, E2] =
+    traversal.union((f1 +: fs).map(t ⇒ toTraversal(t(startV))): _*)
+
+  def unionE[E2](
+    f1: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2]),
+    fs: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2])*): GrafGraphTraversal[S, E2] =
+    traversal.union((f1 +: fs).map(t ⇒ toTraversal(t(startE))): _*)
+
+  def coalesceV[E2](
+    f1: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2]),
+    fs: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2])*): GrafGraphTraversal[S, E2] =
+    traversal.coalesce((f1 +: fs).map(t ⇒ toTraversal(t(startV))): _*)
+
+  def coalesceE[E2](
+    f1: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2]),
+    fs: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2])*): GrafGraphTraversal[S, E2] =
+    traversal.coalesce((f1 +: fs).map(t ⇒ toTraversal(t(startE))): _*)
+
+  def repeatV(f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E]): GrafGraphTraversal[S, E] =
+    traversal.repeat(f(startV))
+
+  def repeatE(f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E]): GrafGraphTraversal[S, E] =
+    traversal.repeat(f(startE))
+
+  def emit: GrafGraphTraversal[S, E] = traversal.emit()
+
+  def emitT(emitPredicate: Traverser[E] ⇒ Boolean): GrafGraphTraversal[S, E] =
+    traversal.emit(emitPredicate)
+
+  def emitV(f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.emit(f(startV))
+
+  def emitE(f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.emit(f(startE))
+
+  def untilT(until: Traverser[E] ⇒ Boolean): GrafGraphTraversal[S, E] =
+    traversal.until((u: Traverser[E]) ⇒ until(u))
+
+  def untilV(f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.until(f(startV))
+
+  def untilE(f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.until(f(startE))
+
+  def times(maxLoops: Int): GrafGraphTraversal[S, E] =
+    traversal.times(maxLoops)
+
+  def localV[E2](f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2]): GrafGraphTraversal[S, E2] =
+    traversal.local(f(startV))
+
+  def localE[E2](f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2]): GrafGraphTraversal[S, E2] =
+    traversal.local(f(startE))
+
+  ///////////////////// UTILITY STEPS /////////////////////
+
+  def as(stepLabel: String, stepLabels: String*): GrafGraphTraversal[S, E] =
+    traversal.as(stepLabel, stepLabels: _*)
+
+  def barrier: GrafGraphTraversal[S, E] =
+    traversal.barrier()
+
+  def barrier(maxBarrierSize: Int): GrafGraphTraversal[S, E] =
+    traversal.barrier(maxBarrierSize)
+
+  def by: GrafGraphTraversal[S, E] =
+    traversal.by()
+
+  def by[V](element: Element ⇒ V, comparator: Ordering[V]): GrafGraphTraversal[S, E] =
+    traversal.by(element, comparator)
+
+  def by(order: Order): GrafGraphTraversal[S, E] =
+    traversal.by(order)
+
+  def by(tokenProjection: T): GrafGraphTraversal[S, E] =
+    traversal.by(tokenProjection)
+
+  def byV(f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.by(f(startV))
+
+  def byE(f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.by(f(startE))
+
+  def byV[V](f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _], endOrdering: Ordering[V]): GrafGraphTraversal[S, E] =
+    traversal.by(f(startV), endOrdering)
+
+  def byE[V](f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _], endOrdering: Ordering[V]): GrafGraphTraversal[S, E] =
+    traversal.by(f(startE), endOrdering)
+
+  def by(elementPropertyKey: String): GrafGraphTraversal[S, E] =
+    traversal.by(elementPropertyKey)
+
+  def by(comparator: Ordering[E]): GrafGraphTraversal[S, E] =
+    traversal.by(comparator)
+
+  def by[V](f: V ⇒ AnyRef): GrafGraphTraversal[S, E] =
+    traversal.by(f)
+
+  def by[V](elementPropertyProjection: String, propertyValueComparator: Ordering[V]): GrafGraphTraversal[S, E] =
+    traversal.by(elementPropertyProjection, propertyValueComparator)
+
+  def optionV[M, E2](
+    pickToken: M,
+    f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[E, E2]): GrafGraphTraversal[S, E] =
+    traversal.option(pickToken, f(startV))
+
+  def optionE[M, E2](
+    pickToken: M,
+    f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[E, E2]): GrafGraphTraversal[S, E] =
+    traversal.option(pickToken, f(startE))
+
+  def optionV[E2](f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[E, E2]): GrafGraphTraversal[S, E] =
+    traversal.option(f(startV))
+
+  def optionE[E2](f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[E, E2]): GrafGraphTraversal[S, E] =
+    traversal.option(f(startE))
+
+  def iterate(): GrafGraphTraversal[S, E] =
+    traversal.iterate()
+
 }

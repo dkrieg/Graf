@@ -1,9 +1,7 @@
 package graf.example
 
 import graf._
-import gremlin._
-import graf.gremlin.structure._
-import graf.gremlin.structure.convert.decorateAll._
+import graf.gremlin._
 import graf.gremlin.structure.syntax._
 import graf.gremlin.structure.util.TinkerGraphFactory
 import graf.gremlin.structure.util.show._

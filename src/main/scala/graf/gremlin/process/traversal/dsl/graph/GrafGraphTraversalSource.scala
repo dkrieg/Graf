@@ -1,9 +1,11 @@
 package graf.gremlin
 package process.traversal.dsl.graph
 
+import java.util.{ Optional, List ⇒ JList }
+
 import graf.gremlin.structure.convert.wrapAll._
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer
-import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategy
+import org.apache.tinkerpop.gremlin.process.traversal.{ TraversalSource, TraversalStrategy }
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource.GraphTraversalSourceStub
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.{ GraphTraversal, GraphTraversalSource }
 import org.apache.tinkerpop.gremlin.structure._
@@ -12,15 +14,15 @@ case class GrafGraphTraversalSource private[graph] (private val source: GraphTra
 
   def addV(keyValues: AnyRef*): GraphTraversal[Vertex, Vertex] = source.addV(keyValues)
 
-  def E: GrafEdgeGraphTraversal[Edge] = source.E()
+  def E: GrafEdgeTraversal[Edge] = source.E()
 
-  def E(edgesId: AnyRef, edgesIds: AnyRef*): GrafEdgeGraphTraversal[Edge] = source.E(edgesId +: edgesIds: _*)
+  def E(edgesId: AnyRef, edgesIds: AnyRef*): GrafEdgeTraversal[Edge] = source.E(edgesId +: edgesIds: _*)
 
   def tx: Transaction = source.tx()
 
-  def V: GrafVertexGraphTraversal[Vertex] = source.V()
+  def V: GrafVertexTraversal[Vertex] = source.V()
 
-  def V(vertexId: AnyRef, vertexIds: AnyRef*): GrafVertexGraphTraversal[Vertex] = source.V(vertexId +: vertexIds: _*)
+  def V(vertexId: AnyRef, vertexIds: AnyRef*): GrafVertexTraversal[Vertex] = source.V(vertexId +: vertexIds: _*)
 
   def withPath[S](): GraphTraversalSourceStub = source.withPath[S]()
 
