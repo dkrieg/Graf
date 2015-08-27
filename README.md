@@ -175,8 +175,8 @@ def addSong(name: String,  performances: Int, songType: String,
     t.V.hasLabel(Artist).hasKeyValue(Name(sungBy)).headOption flatMap { a ⇒
       t.V.hasLabel(Artist).hasKeyValue(Name(writtenBy)).headOption map { b ⇒
         val v = g + (Song, Name(name), Performances(performances), SongType(songType))
-        a <-- SungBy --- v
-        b <-- WrittenBy --- v
+        v --- SungBy --> a
+        v --- WrittenBy --> b
         v
       }
     }
