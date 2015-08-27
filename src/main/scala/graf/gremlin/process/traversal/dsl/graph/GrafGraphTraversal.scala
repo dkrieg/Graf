@@ -197,6 +197,12 @@ class GrafGraphTraversal[S, E](private[graph] override val traversal: GraphTrave
   def where(predicate: P[String]): GrafGraphTraversal[S, E] =
     traversal.where(predicate)
 
+  def hasV(propertyKey: String, f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.has(propertyKey, f(startV))
+
+  def hasE(propertyKey: String, f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
+    traversal.has(propertyKey, f(startE))
+
   def is(predicate: P[E]): GrafGraphTraversal[S, E] =
     traversal.is(predicate)
 

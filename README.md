@@ -152,19 +152,34 @@ def d: BiFunction[Long, Boolean, Int]  = a
 ```scala
 package greatful.dead
 
+import graf._
+import graf.gremlin._
 import graf.gremlin.structure.schema._
+import graf.gremlin.structure.syntax._
+import org.apache.tinkerpop.gremlin.structure.Vertex
 
-object schema {
-  val Song         = Label("song")
-  val Artist       = Label("artist")
-  val SungBy       = Label("sung_by")
-  val WrittenBy    = Label("written_by")
-  val FollowedBy   = Label("followed_by")
+val Song = Label("song")
+val Artist = Label("artist")
+val SungBy = Label("sung_by")
+val WrittenBy = Label("written_by")
+val FollowedBy = Label("followed_by")
+val Name = Key[String]("name")
+val SongType = Key[String]("song_type")
+val Weight = Key[Int]("weight")
+val Performances = Key[Int]("performances")
 
-  val Name         = Key[String]("name")
-  val SongType     = Key[String]("song_type")
-  val Weight       = Key[Int]("weight")
-  val Performances = Key[Int]("performances")
+def addSong(name: String, performances: Int, songType: String, sungBy: String, writtenBy: String): Graf[Option[Vertex]] = Graf {
+  G map { g ⇒
+    val t = g.traversal(grafBuilder)
+    t.V.hasLabel(Artist).hasKeyValue(Name(sungBy)).headOption flatMap { a ⇒
+      t.V.hasLabel(Artist).hasKeyValue(Name(writtenBy)).headOption map { b ⇒
+        val v = g + (Song, Name(name), Performances(performances), SongType(songType))
+        a <-- SungBy --- v
+        b <-- WrittenBy --- v
+        v
+      }
+    }
+  }
 }
 ```
 **More to come...**

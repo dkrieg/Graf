@@ -1,6 +1,7 @@
 package graf.example
 
 import graf._
+import graf.core.HasAtomsFilter.ops._
 import graf.gremlin._
 import graf.gremlin.structure.syntax._
 import graf.gremlin.structure.util.TinkerGraphFactory
@@ -20,9 +21,9 @@ object GrafApp4 extends App {
       // create some vertices
       _ = g + (Software, Name("blueprints"), YearCreated(2010))
       t = g.traversal(grafBuilder)
-      _ = t.V.hasKeyValue(Name("blueprints")).toList.head <-- "dependsOn" --- (g + (Software, Name("gremlin"), YearCreated(2009)))
-      _ = t.V.hasKeyValue(Name("gremlin")).toList.head <-- "dependsOn" --- (g + (Software, Name("gremlinScala")))
-      _ = t.V.hasKeyValue(Name("gremlinScala")).toList.head <-- "createdBy" --- (g + (Person, Name("mpollmeier")))
+      _ = t.V.hasKeyValue(Name("blueprints")).head <-- "dependsOn" --- (g + (Software, Name("gremlin"), YearCreated(2009)))
+      _ = t.V.hasKeyValue(Name("gremlin")).head <-- "dependsOn" --- (g + (Software, Name("gremlinScala")))
+      _ = t.V.hasKeyValue(Name("gremlinScala")).head <-- "createdBy" --- (g + (Person, Name("mpollmeier")))
 
       // map over all edges to create a sorted list
       eq = t.E.toList.sortWith { (a, b) ⇒

@@ -18,6 +18,12 @@ package object graph {
   implicit def toGrafVertexGraphTraversal[Start](t: GraphTraversal[Start, Vertex]): GrafVertexTraversal[Start] =
     new GrafVertexTraversal(t)
 
+  implicit def toGrafVertexGraphTraversal[Start](t: GrafGraphTraversal[Start, Vertex]): GrafVertexTraversal[Start] =
+    new GrafVertexTraversal(t.traversal)
+
+  implicit def toGrafVertexGraphTraversal[Start](t: GrafElementTraversal[Start, Vertex]): GrafVertexTraversal[Start] =
+    new GrafVertexTraversal(t.traversal)
+
   implicit def toGrafEdgeGraphTraversal[Start](t: GraphTraversal[Start, Edge]): GrafEdgeTraversal[Start] =
     new GrafEdgeTraversal(t)
 
