@@ -168,7 +168,8 @@ val SongType = Key[String]("song_type")
 val Weight = Key[Int]("weight")
 val Performances = Key[Int]("performances")
 
-def addSong(name: String, performances: Int, songType: String, sungBy: String, writtenBy: String): Graf[Option[Vertex]] = Graf {
+def addSong(name: String,  performances: Int, songType: String, 
+            sungBy: String, writtenBy: String): Graf[Option[Vertex]] = Graf {
   G map { g ⇒
     val t = g.traversal(grafBuilder)
     t.V.hasLabel(Artist).hasKeyValue(Name(sungBy)).headOption flatMap { a ⇒
