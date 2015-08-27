@@ -12,7 +12,7 @@ memoization to create a referentially transparent API that given the same input 
 state change that may have occurred in the graph.  This of course has benefits and drawback but referentially 
 transparent functions are far easier to reason about. 
 
-### [Example Code](https://github.com/dkrieg/Graf/blob/master/src/example/scala/graf)
+### [Example Code](https://github.com/dkrieg/Graf/blob/master/src/example/scala/graf/example)
 For closer examination
 ```scala
 object GrafApp extends App {
