@@ -191,7 +191,7 @@ object GrafApp5 extends App {
     } yield v
   }
 
-  def createArtist(name: Name) = Graf {
+  def createArtist(name: Name): Graf[Vertex] = Graf {
     for {
       g <- G
       a = g + (Artist, name)
