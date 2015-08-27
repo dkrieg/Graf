@@ -1,7 +1,6 @@
 package graf.example
 
 import graf._
-import graf.core.HasAtomsFilter.ops._
 import graf.gremlin._
 import graf.gremlin.structure.syntax._
 import graf.gremlin.structure.util.TinkerGraphFactory
