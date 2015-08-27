@@ -12,10 +12,7 @@ memoization to create a referentially transparent API that given the same input 
 state change that may have occurred in the graph.  This of course has benefits and drawback but referentially 
 transparent functions are far easier to reason about. 
 
-### Example Code
-* [GrafApp.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/graf/GrafApp.scala), 
-[GrafApp2.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/graf/GrafApp2.scala),
-[GrafApp3.scala](https://github.com/dkrieg/Graf/blob/master/src/example/scala/graf/GrafApp3.scala) 
+### [Example Code](https://github.com/dkrieg/Graf/blob/master/src/example/scala/graf)
 For closer examination
 ```scala
 object GrafApp extends App {
@@ -150,36 +147,71 @@ def d: BiFunction[Long, Boolean, Int]  = a
 ```
 **Building blocks for define strongly-typed Vertex and Edge properties**
 ```scala
-package greatful.dead
+object GrafApp5 extends App {
+  type Name = KeyValue
+  type SongType = KeyValue
+  type Weight = KeyValue
+  type Performances = KeyValue
 
-import graf._
-import graf.gremlin._
-import graf.gremlin.structure.schema._
-import graf.gremlin.structure.syntax._
-import org.apache.tinkerpop.gremlin.structure.Vertex
+  val Song = Label("song")
+  val Artist = Label("artist")
+  val SungBy = Label("sung_by")
+  val WrittenBy = Label("written_by")
+  val FollowedBy = Label("followed_by")
+  
+  val Name = Key[String]("name")
+  val SongType = Key[String]("song_type")
+  val Weight = Key[Int]("weight")
+  val Performances = Key[Int]("performances")
 
-val Song = Label("song")
-val Artist = Label("artist")
-val SungBy = Label("sung_by")
-val WrittenBy = Label("written_by")
-val FollowedBy = Label("followed_by")
-val Name = Key[String]("name")
-val SongType = Key[String]("song_type")
-val Weight = Key[Int]("weight")
-val Performances = Key[Int]("performances")
-
-def addSong(name: String, performances: Int, songType: String, sungBy: String, writtenBy: String): Graf[Option[Vertex]] = Graf {
-  G map { g ⇒
-    val t = g.traversal(grafBuilder)
-    t.V.hasLabel(Artist).hasKeyValue(Name(sungBy)).headOption flatMap { a ⇒
-      t.V.hasLabel(Artist).hasKeyValue(Name(writtenBy)).headOption map { b ⇒
-        val v = g + (Song, Name(name), Performances(performances), SongType(songType))
-        a <-- SungBy --- v
-        b <-- WrittenBy --- v
-        v
-      }
+  def addSong(name: Name, performances: Performances, songType: SongType,
+              sungBy: Name, writtenBy: Name): Graf[Option[Vertex]] = Graf {
+    for {
+      s ← findArtist(sungBy)
+      w ← findArtist(writtenBy)
+      v ← createSong(name, performances, songType)
+    } yield {
+      v --- SungBy --> s.get
+      v --- WrittenBy --> w.get
+      v.point[Option]
     }
   }
+
+  def findArtist(name: Name): Graf[Option[Vertex]] = Graf {
+    for {
+      g ← G
+      v = g.traversal(grafBuilder).V.hasLabel(Artist).hasKeyValue(name).headOption
+    } yield v
+  }
+
+  def createSong(name: Name, performances: Performances, songType: SongType): Graf[Vertex] = Graf {
+    for {
+      g ← G
+      v = g + (Song, name, performances, songType)
+    } yield v
+  }
+
+  def createArtist(name: Name) = Graf {
+    for {
+      g <- G
+      a = g + (Artist, name)
+    } yield a
+  }
+
+  val script: Graf[Unit] = Graf {
+    for {
+      a <- createArtist(Name("Jerry Garcia"))
+      b <- createArtist(Name("Robert Hunter"))
+      s <- addSong(Name("Dark Start"), Performances(85), SongType("Psychedelic rock"),
+                   Name(a.value(Name.key)), Name(b.value(Name.key)))
+    } yield ()
+  }
+
+  val graph = TinkerGraphFactory.open()
+  script(graph).run
+  graph.println
+  graph.io(IoCore.graphson()).writer.create().writeGraph(Console.out, graph)
+  graph.close()
 }
 ```
 **More to come...**

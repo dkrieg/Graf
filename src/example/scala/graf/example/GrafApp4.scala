@@ -49,11 +49,11 @@ object GrafApp4 extends App {
   // NOTE: we are ready to change the world but it remains unchanged!
 
   task.run
-  println(graph)
+  graph.println
   task.run
   task.run // The task is referentially transparent - it executes once and memoizes the results
   task.run
-  println(graph)
+  graph.println
 
   // print resulting list of strings to console
   task.run.foreach(println)

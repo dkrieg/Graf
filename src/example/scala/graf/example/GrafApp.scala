@@ -49,20 +49,20 @@ object GrafApp extends App {
 
   // apply a Graph instance to the script to create an runnable Task
   val task = script(graph)
-  println(graph)
+  graph.println
   script(graph)
   script.bind(graph) // alternate syntax
   script.bind(graph) // bind the graph to the script gives you a new One Time Task - but does not alter the graph
   script.bind(graph)
-  println(graph)
+  graph.println
   // NOTE: we are ready to change the world but it remains unchanged!
 
   task.run
-  println(graph)
+  graph.println
   task.run
   task.run // The task is referentially transparent - it executes once and memoizes the results
   task.run
-  println(graph)
+  graph.println
 
   // print resulting list of strings to console
   task.run.foreach(println)

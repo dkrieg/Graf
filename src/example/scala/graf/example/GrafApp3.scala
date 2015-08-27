@@ -81,21 +81,21 @@ object GrafApp3 extends App {
 
   // apply a Graph instance to the script to create a list of runnable Processes
   val task: OneTimeTask[Process[Task, Unit :: Unit :: List[String] :: HNil]] = script.bind(graph)
-  println(graph)
+  graph.println
   script.bind(graph)
   script.bind(graph) // bind the graph to the script gives you a new One Time Task - but does not alter the graph
   script.bind(graph)
   script.bind(graph)
-  println(graph)
+  graph.println
   // NOTE: we are ready to change the world but it remains unchanged!
 
   // The task is referentially transparent - it executes once and memoizes the results
   task.run
-  println(graph)
+  graph.println
   task.run
   task.run // The task is referentially transparent - it executes once and memoizes the results
   task.run
-  println(graph)
+  graph.println
 
   task.run.runLog.run.head.last.foreach(println)
 
