@@ -12,7 +12,7 @@ import org.apache.tinkerpop.gremlin.structure._
 
 case class GrafGraphTraversalSource private[graph] (private val source: GraphTraversalSource, private val builder: GrafTraversalSourceBuilder) extends TraversalSource {
 
-  def addV(keyValues: AnyRef*): GraphTraversal[Vertex, Vertex] = source.addV(keyValues)
+  def addV(keyValues: AnyRef*): GraphTraversal[Vertex, Vertex] = source.addV(keyValues: _*)
 
   def E: GrafEdgeTraversal[Edge] = source.E()
 

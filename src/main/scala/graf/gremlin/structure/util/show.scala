@@ -1,6 +1,7 @@
 package graf.gremlin
 package structure.util
 
+import org.apache.tinkerpop.gremlin.structure.Graph.Features
 import org.apache.tinkerpop.gremlin.structure._
 
 import scalaz.Show.showFromToString
@@ -12,4 +13,5 @@ object show {
   implicit val TransactionShow = showFromToString[Transaction]
   implicit val VertexShow = showFromToString[Vertex]
   implicit def VertexPropertyShow[A] = showFromToString[VertexProperty[A]]
+  implicit val Features = showFromToString[Features]
 }

@@ -1,10 +1,16 @@
 package graf.gremlin
 package structure
 
-import graf.gremlin.structure.schema.{Atom, Label}
+import graf.gremlin.structure.schema.{KeyValue, Atom, Label}
 import org.apache.tinkerpop.gremlin.structure._
 
 object syntax {
+
+  case class SemiEdge(label: Label, from: Vertex, atoms: Atom*) {
+    def -->(to: Vertex) = from.addEdge(label.value.asInstanceOf[String], to, atoms.flatMap { atom ⇒ Seq(atom.key, atom.value) }: _*)
+  }
+
+  case class SemiDoubleEdge(label: Label, right: Vertex, atoms: Atom*)
 
   implicit class GraphWithPlus(g: Graph) {
 
@@ -52,13 +58,16 @@ object syntax {
     def -->(right: Vertex) = SemiDoubleEdge(label, right, atoms: _*)
   }
 
-  case class SemiEdge(label: Label, from: Vertex, atoms: Atom*) {
-    def -->(to: Vertex) = from.addEdge(label.value.asInstanceOf[String], to, atoms.flatMap { atom ⇒ Seq(atom.key, atom.value) }: _*)
-  }
-
-  case class SemiDoubleEdge(label: Label, right: Vertex, atoms: Atom*)
-
   implicit class GraphElementOps[E <: Element](e: E) {
     def ID[A]: A = e.id().asInstanceOf[A]
+
+    def property[V <: Any](kv: KeyValue): Property[V] =
+      e.property(kv.keyT[String], kv.valueT[V])
+  }
+
+  implicit class VertexOps(v: Vertex) extends GraphElementOps[Vertex](v) {
+
+    override def property[V <: Any](kv: KeyValue): VertexProperty[V] =
+      v.property[V](kv.keyT[String], kv.valueT[V])
   }
 }

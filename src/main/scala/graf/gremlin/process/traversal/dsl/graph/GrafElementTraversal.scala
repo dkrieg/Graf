@@ -31,10 +31,10 @@ class GrafElementTraversal[S, E](private[graph] override val traversal: GraphTra
     traversal.properties(pk +: propertyKeys: _*).asInstanceOf[GraphTraversal[S, _ <: Property[E2]]]
 
   def property(cardinality: Cardinality, key: String, value: Any, keyValues: AnyRef*): GrafElementTraversal[S, E] =
-    traversal.property(cardinality, key, value, keyValues)
+    traversal.property(cardinality, key, value, keyValues: _*)
 
   def property(key: String, value: Any, keyValues: AnyRef*): GrafElementTraversal[S, E] =
-    traversal.property(key, value, keyValues)
+    traversal.property(key, value, keyValues: _*)
 
   def propertyMap[E2]: GrafElementTraversal[S, JMap[String, E2]] =
     traversal.propertyMap().asInstanceOf[GraphTraversal[S, JMap[String, E2]]]

@@ -50,10 +50,10 @@ class GrafGraphTraversal[S, E](private[graph] override val traversal: GraphTrave
   def path: GrafGraphTraversal[S, Path] =
     traversal.path()
 
-  def matchV[E2](f: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, JMap[String, E2]] =
+  def matchV[E2](f: Seq[(GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _])]): GrafGraphTraversal[S, JMap[String, E2]] =
     traversal.`match`(f.map(t ⇒ toTraversal(t(startV))): _*).asInstanceOf[GraphTraversal[S, JMap[String, E2]]]
 
-  def matchE[E2](f: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, JMap[String, E2]] =
+  def matchE[E2](f: Seq[(GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _])]): GrafGraphTraversal[S, JMap[String, E2]] =
     traversal.`match`(f.map(t ⇒ toTraversal(t(startE))): _*).asInstanceOf[GraphTraversal[S, JMap[String, E2]]]
 
   def sack[E2](): GrafGraphTraversal[S, E2] =
@@ -162,17 +162,17 @@ class GrafGraphTraversal[S, E](private[graph] override val traversal: GraphTrave
   def filterE(f: GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]): GrafGraphTraversal[S, E] =
     traversal.filter(f(startE))
 
-  def orV(f: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]), fs: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, E] =
-    traversal.or((f +: fs).map(t ⇒ toTraversal(t(startV))): _*)
+  def orV(fs: Seq[(GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _])]): GrafGraphTraversal[S, E] =
+    traversal.or(fs.map(t ⇒ toTraversal(t(startV))): _*)
 
-  def orE(f: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]), fs: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, E] =
-    traversal.or((f +: fs).map(t ⇒ toTraversal(t(startE))): _*)
+  def orE(fs: Seq[(GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _])]): GrafGraphTraversal[S, E] =
+    traversal.or(fs.map(t ⇒ toTraversal(t(startE))): _*)
 
-  def andV(f: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _]), fs: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, E] =
-    traversal.and((f +: fs).map(t ⇒ toTraversal(t(startV))): _*)
+  def andV(fs: Seq[(GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, _])]): GrafGraphTraversal[S, E] =
+    traversal.and(fs.map(t ⇒ toTraversal(t(startV))): _*)
 
-  def andE(f: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _]), fs: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _])*): GrafGraphTraversal[S, E] =
-    traversal.and((f +: fs).map(t ⇒ toTraversal(t(startE))): _*)
+  def andE(fs: Seq[(GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, _])]): GrafGraphTraversal[S, E] =
+    traversal.and(fs.map(t ⇒ toTraversal(t(startE))): _*)
 
   def inject(i: E, injections: E*): GrafGraphTraversal[S, E] =
     traversal.inject(i +: injections: _*)
@@ -348,24 +348,20 @@ class GrafGraphTraversal[S, E](private[graph] override val traversal: GraphTrave
     traversal.choose(choiceFunction).asInstanceOf[GraphTraversal[S, E2]]
 
   def unionV[E2](
-    f1: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2]),
-    fs: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2])*): GrafGraphTraversal[S, E2] =
-    traversal.union((f1 +: fs).map(t ⇒ toTraversal(t(startV))): _*)
+    fs: Seq[(GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2])]): GrafGraphTraversal[S, E2] =
+    traversal.union(fs.map(t ⇒ toTraversal(t(startV))): _*)
 
   def unionE[E2](
-    f1: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2]),
-    fs: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2])*): GrafGraphTraversal[S, E2] =
-    traversal.union((f1 +: fs).map(t ⇒ toTraversal(t(startE))): _*)
+    fs: Seq[(GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2])]): GrafGraphTraversal[S, E2] =
+    traversal.union(fs.map(t ⇒ toTraversal(t(startE))): _*)
 
   def coalesceV[E2](
-    f1: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2]),
-    fs: (GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2])*): GrafGraphTraversal[S, E2] =
-    traversal.coalesce((f1 +: fs).map(t ⇒ toTraversal(t(startV))): _*)
+    fs: Seq[(GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E2])]): GrafGraphTraversal[S, E2] =
+    traversal.coalesce(fs.map(t ⇒ toTraversal(t(startV))): _*)
 
   def coalesceE[E2](
-    f1: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2]),
-    fs: (GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2])*): GrafGraphTraversal[S, E2] =
-    traversal.coalesce((f1 +: fs).map(t ⇒ toTraversal(t(startE))): _*)
+    fs: Seq[(GrafEdgeTraversal[Edge] ⇒ GrafTraversal[_, E2])]): GrafGraphTraversal[S, E2] =
+    traversal.coalesce(fs.map(t ⇒ toTraversal(t(startE))): _*)
 
   def repeatV(f: GrafVertexTraversal[Vertex] ⇒ GrafTraversal[_, E]): GrafGraphTraversal[S, E] =
     traversal.repeat(f(startV))
