@@ -1,7 +1,8 @@
 package graf.gremlin
 package structure
 
-import graf.gremlin.structure.schema.{KeyValue, Atom, Label}
+import graf.gremlin.process.traversal.dsl.graph._
+import graf.gremlin.structure.schema.{ID, KeyValue, Atom, Label}
 import org.apache.tinkerpop.gremlin.structure._
 
 object syntax {
@@ -69,5 +70,18 @@ object syntax {
 
     override def property[V <: Any](kv: KeyValue): VertexProperty[V] =
       v.property[V](kv.keyT[String], kv.valueT[V])
+  }
+
+  implicit class GrafGrafTraversalOps[S, E](t: GrafGraphTraversal[S, E]) {
+
+    def hasId(id: ID): GrafGraphTraversal[S, E] =
+      t.hasId(id.value)
+
+    def hasKeyValue(keyValue: KeyValue): GrafGraphTraversal[S, E] =
+      t.has(keyValue.key.asInstanceOf[String], keyValue.value)
+
+    def hasLabel(label: Label): GrafGraphTraversal[S, E] =
+      t.hasLabel(label.value.asInstanceOf[String])
+
   }
 }

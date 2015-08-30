@@ -13,7 +13,7 @@ object VertexProperties extends App {
   //  val g = graph.traversal()
   ==>(g)
 
-  val v = g.addV("name", "marko", "name", "marko a. rodriguez").next()
+  val v = g.addV("name" -> "marko", "name" -> "marko a. rodriguez").next()
   ==>(g)
 
   g.V(v).properties.count.foreach(==>)

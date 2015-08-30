@@ -4,6 +4,7 @@ package process.traversal.dsl.graph
 import java.util.{ Optional, List ⇒ JList }
 
 import graf.gremlin.structure.convert.wrapAll._
+import graf.gremlin.structure.schema.Atom
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer
 import org.apache.tinkerpop.gremlin.process.traversal.{ TraversalSource, TraversalStrategy }
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource.GraphTraversalSourceStub
@@ -12,7 +13,10 @@ import org.apache.tinkerpop.gremlin.structure._
 
 case class GrafGraphTraversalSource private[graph] (private val source: GraphTraversalSource, private val builder: GrafTraversalSourceBuilder) extends TraversalSource {
 
-  def addV(keyValues: AnyRef*): GraphTraversal[Vertex, Vertex] = source.addV(keyValues: _*)
+  def addV: GraphTraversal[Vertex, Vertex] = source.addV()
+
+  def addV(kv: (Any, AnyRef)*): GraphTraversal[Vertex, Vertex] =
+    source.addV(kv.flatMap(p ⇒ Seq(p._1, p._2)).map(_.asInstanceOf[Object]): _*)
 
   def E: GrafEdgeTraversal[Edge] = source.E()
 

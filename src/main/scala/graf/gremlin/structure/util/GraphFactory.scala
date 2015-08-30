@@ -24,4 +24,6 @@ object TinkerGraphFactory {
   }
 
   def createModern(): Graph = TinkerFactory.createModern()
+
+  def createTheCrew(): Graph = TinkerFactory.createTheCrew()
 }

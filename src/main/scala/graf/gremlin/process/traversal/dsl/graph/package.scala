@@ -15,17 +15,17 @@ package object graph {
   implicit def toTraversal[Start, End](t: GrafTraversal[Start, End]): Traversal[Start, End] =
     t.traversal
 
-  implicit def toGrafVertexGraphTraversal[Start](t: GraphTraversal[Start, Vertex]): GrafVertexTraversal[Start] =
+  implicit def toGrafVertexTraversal[Start](t: GraphTraversal[Start, Vertex]): GrafVertexTraversal[Start] =
     new GrafVertexTraversal(t)
 
-  implicit def toGrafVertexGraphTraversal[Start](t: GrafGraphTraversal[Start, Vertex]): GrafVertexTraversal[Start] =
-    new GrafVertexTraversal(t.traversal)
-
-  implicit def toGrafVertexGraphTraversal[Start](t: GrafElementTraversal[Start, Vertex]): GrafVertexTraversal[Start] =
+  implicit def toGrafVertexTraversal[Start](t: GrafGraphTraversal[Start, Vertex]): GrafVertexTraversal[Start] =
     new GrafVertexTraversal(t.traversal)
 
   implicit def toGrafEdgeGraphTraversal[Start](t: GraphTraversal[Start, Edge]): GrafEdgeTraversal[Start] =
     new GrafEdgeTraversal(t)
+
+  implicit def toGrafEdgeGraphTraversal[Start](t: GrafGraphTraversal[Start, Edge]): GrafEdgeTraversal[Start] =
+    new GrafEdgeTraversal(t.traversal)
 
   implicit def toTraversalAdmin[Start, End](g: GrafTraversalAdmin[Start, End]): Traversal.Admin[Start, End] =
     g.admin
@@ -33,6 +33,6 @@ package object graph {
   implicit def toGrafTraversalAdmin[Start, End](t: Traversal.Admin[Start, End]): GrafTraversalAdmin[Start, End] =
     new GrafTraversalAdmin(t)
 
-  implicit def toGrafElementGraphTraversal[Start, End](t: GraphTraversal[Start, End]): GrafElementTraversal[Start, End] =
-    new GrafElementTraversal(t)
+  implicit def toGrafGraphTraversal[Start, End](t: GraphTraversal[Start, End]): GrafGraphTraversal[Start, End] =
+    new GrafGraphTraversal(t)
 }

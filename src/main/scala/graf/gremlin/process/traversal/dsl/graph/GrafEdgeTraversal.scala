@@ -4,7 +4,7 @@ package process.traversal.dsl.graph
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 import org.apache.tinkerpop.gremlin.structure.{Direction, Edge}
 
-class GrafEdgeTraversal[S](private[graph] override val traversal: GraphTraversal[S, Edge]) extends GrafElementTraversal(traversal) {
+class GrafEdgeTraversal[S](private[graph] override val traversal: GraphTraversal[S, Edge]) extends GrafGraphTraversal(traversal) {
 
   def inV: GrafVertexTraversal[S] = traversal.inV()
 

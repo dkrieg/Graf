@@ -7,7 +7,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.Traversal
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.BulkSet
 import java.util.stream.{ Stream ⇒ JStream }
 
-class GrafTraversal[Start, End](private[graph] val traversal: Traversal[Start, End]) extends Iterator[End] {
+class GrafTraversal[Start, End](private[graph] val traversal: Traversal[Start, End]) {
   def head: End = toList.head
 
   def headOption: Option[End] = toList.headOption
@@ -15,6 +15,8 @@ class GrafTraversal[Start, End](private[graph] val traversal: Traversal[Start, E
   def iterate[A, B](): GrafTraversal[A, B] = traversal.iterate().asInstanceOf[Traversal[A, B]]
 
   def forEachRemaining(action: End ⇒ Unit): Unit = traversal.forEachRemaining(action)
+
+  def foreach[U](f: End ⇒ U) = toList.foreach(f)
 
   def next(amount: Int): List[End] = traversal.next(amount).toList
 
@@ -24,7 +26,7 @@ class GrafTraversal[Start, End](private[graph] val traversal: Traversal[Start, E
 
   def asAdmin(): GrafTraversalAdmin[Start, End] = new GrafTraversalAdmin(traversal.asAdmin())
 
-  override def toList: List[End] = traversal.toList.toList
+  def toList: List[End] = traversal.toList.toList
 
   def toJStream: JStream[End] = traversal.toStream
 
@@ -32,11 +34,11 @@ class GrafTraversal[Start, End](private[graph] val traversal: Traversal[Start, E
 
   def forEachRemaining[E2](endType: Class[E2], f: E2 ⇒ Unit): Unit = traversal.forEachRemaining(endType, f)
 
-  override def toSet[B >: End]: Set[B] = traversal.toSet.toSet
+  def toSet[B >: End]: Set[B] = traversal.toSet.toSet
 
   def remove(): Unit = traversal.remove()
 
-  override def hasNext: Boolean = traversal.hasNext
+  def hasNext: Boolean = traversal.hasNext
 
-  override def next(): End = traversal.next()
+  def next(): End = traversal.next()
 }
