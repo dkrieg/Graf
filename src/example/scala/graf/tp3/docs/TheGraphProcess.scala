@@ -13,7 +13,7 @@ object TheGraphProcess extends App {
   val graph = TinkerGraphFactory.createModern()
   graph.println
 
-  val g = graph.traversal(grafBuilder)
+  val g = graph.traversal(grafStandard)
   println(g)
 
   g.V.has("name", "marko").out("knows").values("name").foreach(println)

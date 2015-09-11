@@ -10,7 +10,7 @@ object TheCrew extends App {
   def ==>(e: Any): Unit = println("==>" + e)
 
   val graph = TinkerGraphFactory.createTheCrew()
-  val g = graph.traversal(grafBuilder)
+  val g = graph.traversal(grafStandard)
   g.V.as("a").
     properties("location").as("b").
     hasNot("endTime").as("c").

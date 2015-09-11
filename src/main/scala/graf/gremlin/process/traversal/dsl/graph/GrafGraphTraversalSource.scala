@@ -1,44 +1,50 @@
 package graf.gremlin
 package process.traversal.dsl.graph
 
-import java.util.{ Optional, List ⇒ JList }
+import java.util.{ List ⇒ JList, Optional }
 
 import graf.gremlin.structure.convert.wrapAll._
-import graf.gremlin.structure.schema.Atom
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
 import org.apache.tinkerpop.gremlin.process.traversal.{ TraversalSource, TraversalStrategy }
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource.GraphTraversalSourceStub
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.{ GraphTraversal, GraphTraversalSource }
 import org.apache.tinkerpop.gremlin.structure._
 
 case class GrafGraphTraversalSource private[graph] (private val source: GraphTraversalSource, private val builder: GrafTraversalSourceBuilder) extends TraversalSource {
 
-  def addV: GraphTraversal[Vertex, Vertex] = source.addV()
+  def addV: GrafGraphTraversal[Vertex, Vertex] = source.addV()
 
-  def addV(kv: (Any, AnyRef)*): GraphTraversal[Vertex, Vertex] =
+  def addV(kv: (Any, AnyRef)*): GrafGraphTraversal[Vertex, Vertex] =
     source.addV(kv.flatMap(p ⇒ Seq(p._1, p._2)).map(_.asInstanceOf[Object]): _*)
 
   def E: GrafEdgeTraversal[Edge] = source.E()
 
-  def E(edgesId: AnyRef, edgesIds: AnyRef*): GrafEdgeTraversal[Edge] = source.E(edgesId +: edgesIds: _*)
+  def E(edgesId: Any, edgesIds: Any*): GrafEdgeTraversal[Edge] =
+    source.E((edgesId +: edgesIds).map(_.asInstanceOf[Object]): _*)
 
   def tx: Transaction = source.tx()
 
   def V: GrafVertexTraversal[Vertex] = source.V()
 
-  def V(vertexId: AnyRef, vertexIds: AnyRef*): GrafVertexTraversal[Vertex] = source.V(vertexId +: vertexIds: _*)
+  def V(vertexId: Any, vertexIds: Any*): GrafVertexTraversal[Vertex] =
+    source.V((vertexId +: vertexIds).map(_.asInstanceOf[Object]): _*)
 
-  def withPath[S](): GraphTraversalSourceStub = source.withPath[S]()
+  def withPath[S]: GrafGraphTraversalSourceStub =
+    GrafGraphTraversalSourceStub(source.withPath[S]())
 
-  def withSack[A](initialValue: A): GraphTraversalSourceStub = source.withSack(initialValue)
+  def withSack[A](initialValue: A): GrafGraphTraversalSourceStub =
+    GrafGraphTraversalSourceStub(source.withSack(initialValue))
 
-  def withSack[A](initialValue: A, splitOperator: A ⇒ A): GraphTraversalSourceStub = source.withSack(initialValue, splitOperator)
+  def withSack[A](initialValue: A, splitOperator: A ⇒ A): GrafGraphTraversalSourceStub =
+    GrafGraphTraversalSourceStub(source.withSack(initialValue, splitOperator))
 
-  def withSack[A](initialValue: ⇒ A): GraphTraversalSourceStub = source.withSack(initialValue)
+  def withSack[A](initialValue: ⇒ A): GrafGraphTraversalSourceStub =
+    GrafGraphTraversalSourceStub(source.withSack(initialValue))
 
-  def withSack[A](initialValue: ⇒ A, splitOperator: A ⇒ A): GraphTraversalSourceStub = source.withSack(initialValue, splitOperator)
+  def withSack[A](initialValue: ⇒ A, splitOperator: A ⇒ A): GrafGraphTraversalSourceStub =
+    GrafGraphTraversalSourceStub(source.withSack(initialValue, splitOperator))
 
-  def withSideEffect(key: String, supplier: ⇒ Any): GraphTraversalSourceStub = source.withSideEffect(key, supplier)
+  def withSideEffect(key: String, supplier: ⇒ Any): GrafGraphTraversalSourceStub =
+    GrafGraphTraversalSourceStub(source.withSideEffect(key, asJavaSupplier[Any](Unit ⇒ supplier)))
 
   def asBuilder(): GrafTraversalSourceBuilder = builder
 

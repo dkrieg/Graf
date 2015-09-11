@@ -16,7 +16,7 @@ class GrafGraphTraversal[S, E](private[graph] override val traversal: GraphTrave
 
   def E: GrafEdgeTraversal[Edge] = __.start[Edge]()
 
-  private def start[A]: GrafGraphTraversal[A, A] = __.start[A]()
+  def start[A]: GrafGraphTraversal[A, A] = __.start[A]()
 
   ///////////////////// MAP STEPS /////////////////////
 
@@ -113,37 +113,50 @@ class GrafGraphTraversal[S, E](private[graph] override val traversal: GraphTrave
   def tree: GrafGraphTraversal[S, Tree[_]] =
     traversal.tree()
 
-  def addV(keyValues: (Any, AnyRef)*): GrafVertexTraversal[S] =
+  def addV(keyValues: (Any, Any)*): GrafVertexTraversal[S] =
     traversal.addV(keyValues.flatMap(p ⇒ Seq(p._1, p._2)).map(_.asInstanceOf[Object]): _*)
 
-  def addE(
-    direction: Direction,
-    firstVertexKeyOrEdgeLabel: String,
-    edgeLabelOrSecondVertexKey: String,
-    propertyKeyValues: (Any, AnyRef)*): GrafEdgeTraversal[S] =
+  def addOutE(
+    edgeLabel: String,
+    vertexKey: String,
+    propertyKeyValues: (Any, Any)*): GrafEdgeTraversal[S] =
     traversal.addE(
-      direction,
-      firstVertexKeyOrEdgeLabel,
-      edgeLabelOrSecondVertexKey,
+      Direction.OUT,
+      edgeLabel,
+      vertexKey,
       propertyKeyValues.flatMap(p ⇒ Seq(p._1, p._2)).map(_.asInstanceOf[Object]): _*)
 
   def addOutE(
-    firstVertexKeyOrEdgeLabel: String,
-    edgeLabelOrSecondVertexKey: String,
-    propertyKeyValues: (Any, AnyRef)*): GrafEdgeTraversal[S] =
-    traversal.addOutE(
-      firstVertexKeyOrEdgeLabel,
-      edgeLabelOrSecondVertexKey,
+    firstVertexKey: String,
+    edgeLabel: String,
+    secondVertexKey: String,
+    propertyKeyValues: (Any, Any)*): GrafEdgeTraversal[S] =
+    traversal.addE(
+      Direction.OUT,
+      firstVertexKey,
+      edgeLabel,
+      secondVertexKey +: propertyKeyValues.flatMap(p ⇒ Seq(p._1, p._2)).map(_.asInstanceOf[Object]): _*)
+
+  def addInE(
+    edgeLabel: String,
+    vertexKey: String,
+    propertyKeyValues: (Any, Any)*): GrafEdgeTraversal[S] =
+    traversal.addE(
+      Direction.IN,
+      edgeLabel,
+      vertexKey,
       propertyKeyValues.flatMap(p ⇒ Seq(p._1, p._2)).map(_.asInstanceOf[Object]): _*)
 
   def addInE(
-    firstVertexKeyOrEdgeLabel: String,
-    edgeLabelOrSecondVertexKey: String,
-    propertyKeyValues: (Any, AnyRef)*): GrafEdgeTraversal[S] =
-    traversal.addInE(
-      firstVertexKeyOrEdgeLabel,
-      edgeLabelOrSecondVertexKey,
-      propertyKeyValues.flatMap(p ⇒ Seq(p._1, p._2)).map(_.asInstanceOf[Object]): _*)
+    firstVertexKey: String,
+    edgeLabel: String,
+    secondVertexKey: String,
+    propertyKeyValues: (Any, Any)*): GrafEdgeTraversal[S] =
+    traversal.addE(
+      Direction.IN,
+      firstVertexKey,
+      edgeLabel,
+      secondVertexKey +: propertyKeyValues.flatMap(p ⇒ Seq(p._1, p._2)).map(_.asInstanceOf[Object]): _*)
 
   ///////////////////// FILTER STEPS /////////////////////
 

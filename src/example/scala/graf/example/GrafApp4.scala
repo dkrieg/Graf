@@ -19,7 +19,7 @@ object GrafApp4 extends App {
 
       // create some vertices
       _ = g + (Software, Name("blueprints"), YearCreated(2010))
-      t = g.traversal(grafBuilder)
+      t = g.traversal(grafStandard)
       _ = t.V.hasKeyValue(Name("blueprints")).head <-- "dependsOn" --- (g + (Software, Name("gremlin"), YearCreated(2009)))
       _ = t.V.hasKeyValue(Name("gremlin")).head <-- "dependsOn" --- (g + (Software, Name("gremlinScala")))
       _ = t.V.hasKeyValue(Name("gremlinScala")).head <-- "createdBy" --- (g + (Person, Name("mpollmeier")))

@@ -44,7 +44,7 @@ object GrafApp5 extends App {
   def findArtist(name: Name): Graf[Option[Vertex]] = Graf {
     for {
       g ← G
-      v = g.traversal(grafBuilder).V.hasLabel(Artist).hasKeyValue(name).headOption
+      v = g.traversal(grafStandard).V.hasLabel(Artist).hasKeyValue(name).headOption
     } yield v
   }
 

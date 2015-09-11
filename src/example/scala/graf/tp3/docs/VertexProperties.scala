@@ -9,7 +9,7 @@ object VertexProperties extends App {
   val graph = TinkerGraphFactory.open()
   ==>(graph)
 
-  val g = graph.traversal(grafBuilder)
+  val g = graph.traversal(grafStandard)
   //  val g = graph.traversal()
   ==>(g)
 

@@ -35,7 +35,7 @@ object GrafApp extends App {
       _ = peter --- (Created, Weight(0.2d)) --> lop
 
       // map over all edges to create a sorted list
-      eq = g.traversal(grafBuilder).E.toList sortWith { (a, b) ⇒
+      eq = g.traversal(grafStandard).E.toList sortWith { (a, b) ⇒
         Ordering[Long].lt(a.ID, b.ID)
       }
 
